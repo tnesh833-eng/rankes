@@ -1,0 +1,27 @@
+# === Secrets & Local Config ===
+frontend/config.js
+.env
+backend/.env
+otp_latest.txt
+
+# === Build & Runtime ===
+node_modules/
+__pycache__/
+*.pyc
+*.pyo
+*.db
+*.sqlite3
+
+# === OS files ===
+.DS_Store
+Thumbs.db
+
+# === Logs ===
+*.log
+
+# === Large binary files ===
+*.exe
+
+# === IDE folders ===
+.vscode/
+.cursor/

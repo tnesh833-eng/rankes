@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>College Intelligence | Rank-Holder</title>
+    <meta name="description" content="Comprehensive engineering college profiles — placements, affiliation, social media, maps, images and videos.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        /* ── Reset & Base ─────────────────────────────────────────── */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg:       #080c14;
+            --surface:  #0f1724;
+            --card:     #131d2e;
+            --border:   rgba(255,255,255,0.07);
+            --primary:  #4f8ef7;
+            --accent:   #00d4aa;
+            --danger:   #ef4444;
+            --text:     #edf2fb;
+            --muted:    #6b7ea8;
+            --tag-bg:   rgba(79,142,247,0.12);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ── Background particles ─────────────────────────────────── */
+        body::before {
+            content: '';
+            position: fixed; inset: 0;
+            background:
+                radial-gradient(ellipse 60% 40% at 10% 20%, rgba(79,142,247,0.10) 0%, transparent 70%),
+                radial-gradient(ellipse 50% 35% at 90% 80%, rgba(0,212,170,0.08) 0%, transparent 70%);
+            pointer-events: none; z-index: 0;
+        }
+
+        /* ── Hero Search Section ──────────────────────────────────── */
+        .hero {
+            position: relative; z-index: 1;
+            text-align: center;
+            padding: 5rem 1.5rem 3rem;
+        }
+
+        .hero-badge {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            background: rgba(79,142,247,0.12);
+            border: 1px solid rgba(79,142,247,0.3);
+            color: #4f8ef7;
+            padding: 0.35rem 1rem;
+            border-radius: 9999px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            margin-bottom: 1.8rem;
+        }
+
+        .hero h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: clamp(2.4rem, 6vw, 4rem);
+            font-weight: 800;
+            line-height: 1.15;
+            background: linear-gradient(135deg, #edf2fb 0%, #4f8ef7 60%, #00d4aa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+        }
+
+        .hero p {
+            color: var(--muted);
+            font-size: 1.05rem;
+            max-width: 540px;
+            margin: 0 auto 2.5rem;
+            line-height: 1.7;
+        }
+
+        /* ── Search Bar ───────────────────────────────────────────── */
+        .search-wrap {
+            max-width: 700px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .search-bar {
+            display: flex;
+            background: var(--card);
+            border: 1px solid rgba(79,142,247,0.25);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 0 0 4px rgba(79,142,247,0.05), 0 20px 60px rgba(0,0,0,0.4);
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .search-bar:focus-within {
+            border-color: rgba(79,142,247,0.6);
+            box-shadow: 0 0 0 4px rgba(79,142,247,0.12), 0 20px 60px rgba(0,0,0,0.5);
+        }
+
+        .search-bar input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            padding: 1.1rem 1.5rem;
+            font-size: 1rem;
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+        }
+
+        .search-bar input::placeholder { color: var(--muted); }
+        .search-bar input:focus { outline: none; }
+
+        .search-bar button {
+            margin: 0.45rem;
+            background: linear-gradient(135deg, #4f8ef7 0%, #2563eb 100%);
+            color: white;
+            border: none;
+            padding: 0.8rem 2rem;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex; align-items: center; gap: 0.5rem;
+            transition: all 0.25s;
+            white-space: nowrap;
+        }
+
+        .search-bar button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 25px rgba(79,142,247,0.4);
+        }
+
+        /* ── Loader ───────────────────────────────────────────────── */
+        #loader {
+            display: none;
+            flex-direction: column; align-items: center; justify-content: center;
+            padding: 5rem 1rem;
+            gap: 1.2rem;
+        }
+
+        .pulse-ring {
+            width: 56px; height: 56px;
+            border-radius: 50%;
+            border: 3px solid transparent;
+            border-top-color: #4f8ef7;
+            border-right-color: #00d4aa;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .loader-steps {
+            display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: center;
+        }
+
+        .step-chip {
+            padding: 0.25rem 0.8rem;
+            border-radius: 9999px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            font-size: 0.75rem;
+            color: var(--muted);
+            animation: fadeInOut 2s ease infinite;
+        }
+
+        .step-chip:nth-child(2) { animation-delay: 0.3s; }
+        .step-chip:nth-child(3) { animation-delay: 0.6s; }
+        .step-chip:nth-child(4) { animation-delay: 0.9s; }
+        .step-chip:nth-child(5) { animation-delay: 1.2s; }
+
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 0.3; } 50% { opacity: 1; color: #4f8ef7; }
+        }
+
+        /* ── Error ────────────────────────────────────────────────── */
+        #errorMsg {
+            display: none;
+            max-width: 700px; margin: 2rem auto;
+            background: rgba(239,68,68,0.1);
+            border: 1px solid rgba(239,68,68,0.3);
+            color: #fca5a5;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        /* ── Results wrapper ──────────────────────────────────────── */
+        #results {
+            display: none;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 1.5rem 5rem;
+            position: relative; z-index: 1;
+            animation: fadeUp 0.6s ease forwards;
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(24px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ── College Hero Card ─────────────────────────────────────── */
+        .college-hero {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 2.5rem;
+            display: flex;
+            gap: 2rem;
+            align-items: flex-start;
+            margin-bottom: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .college-hero::before {
+            content: '';
+            position: absolute; top: 0; left: 0; right: 0; height: 3px;
+            background: linear-gradient(90deg, #4f8ef7, #00d4aa, #4f8ef7);
+        }
+
+        .college-avatar {
+            width: 90px; height: 90px;
+            border-radius: 18px;
+            object-fit: cover;
+            border: 2px solid var(--border);
+            flex-shrink: 0;
+            background: var(--surface);
+        }
+
+        .college-avatar-placeholder {
+            width: 90px; height: 90px;
+            border-radius: 18px;
+            background: linear-gradient(135deg, #4f8ef7, #00d4aa);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 2.2rem; flex-shrink: 0;
+        }
+
+        .college-meta { flex: 1; min-width: 0; }
+
+        .college-meta h2 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 0.6rem;
+            line-height: 1.2;
+        }
+
+        .college-meta p {
+            color: var(--muted);
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .facts-row {
+            display: flex; gap: 0.6rem; flex-wrap: wrap;
+        }
+
+        .fact-chip {
+            padding: 0.3rem 0.85rem;
+            background: var(--tag-bg);
+            border: 1px solid rgba(79,142,247,0.2);
+            border-radius: 9999px;
+            font-size: 0.78rem;
+            font-weight: 500;
+            color: #a5c0f5;
+        }
+
+        /* ── Info Grid (3-col top row) ────────────────────────────── */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .info-grid { grid-template-columns: 1fr; }
+            .college-hero { flex-direction: column; }
+        }
+
+        @media (max-width: 1024px) {
+            .info-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        /* ── Generic Card ─────────────────────────────────────────── */
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 1.5rem;
+        }
+
+        .card-header {
+            display: flex; align-items: center; gap: 0.6rem;
+            margin-bottom: 1.2rem;
+        }
+
+        .card-icon {
+            width: 34px; height: 34px;
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.95rem;
+        }
+
+        .icon-blue  { background: rgba(79,142,247,0.15); color: #4f8ef7; }
+        .icon-green { background: rgba(0,212,170,0.15);  color: #00d4aa; }
+        .icon-pink  { background: rgba(236,72,153,0.15); color: #ec4899; }
+        .icon-amber { background: rgba(251,191,36,0.15); color: #fbbf24; }
+        .icon-purple{ background: rgba(168,85,247,0.15); color: #a855f7; }
+
+        .card-title {
+            font-size: 0.8rem;
+            font-weight: 600;
+            letter-spacing: 0.07em;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+
+        /* ── Social Links ─────────────────────────────────────────── */
+        .social-grid {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 0.6rem;
+        }
+
+        .social-btn {
+            display: flex; align-items: center; gap: 0.5rem;
+            padding: 0.55rem 0.9rem;
+            border-radius: 10px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text);
+            text-decoration: none;
+            font-size: 0.82rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+
+        .social-btn:hover { transform: translateY(-2px); }
+        .social-btn.ig:hover  { background: rgba(225,48,108,0.15); border-color: #e1306c; color: #e1306c; }
+        .social-btn.fb:hover  { background: rgba(24,119,242,0.15); border-color: #1877f2; color: #1877f2; }
+        .social-btn.tw:hover  { background: rgba(29,155,240,0.15);  border-color: #1d9bf0; color: #1d9bf0; }
+        .social-btn.yt:hover  { background: rgba(255,0,0,0.15);     border-color: #ff0000; color: #ff0000; }
+        .social-btn.li:hover  { background: rgba(10,102,194,0.15);  border-color: #0a66c2; color: #0a66c2; }
+        .social-btn.web:hover { background: rgba(0,212,170,0.15);   border-color: #00d4aa; color: #00d4aa; }
+        .social-btn.maps:hover { background: rgba(251,191,36,0.15); border-color: #fbbf24; color: #fbbf24; }
+
+        .social-btn i { font-size: 0.95rem; flex-shrink: 0; }
+
+        /* ── Location ─────────────────────────────────────────────── */
+        .location-row {
+            display: flex; flex-direction: column; gap: 0.7rem;
+        }
+
+        .location-row .row-item {
+            display: flex; align-items: center; gap: 0.7rem;
+        }
+
+        .location-row .row-item i {
+            color: var(--muted); width: 16px; flex-shrink: 0;
+        }
+
+        .location-row .row-item a {
+            color: var(--primary); text-decoration: none;
+        }
+
+        .location-row .row-item a:hover { text-decoration: underline; }
+
+        .rating-stars {
+            display: inline-flex; gap: 2px; color: #fbbf24; font-size: 0.85rem;
+        }
+
+        /* ── Image Gallery ────────────────────────────────────────── */
+        .gallery-section { margin-bottom: 1.5rem; }
+
+        .section-heading {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.15rem; font-weight: 700;
+            margin-bottom: 1rem;
+            display: flex; align-items: center; gap: 0.6rem;
+        }
+
+        .section-heading span {
+            width: 4px; height: 20px;
+            background: linear-gradient(180deg, #4f8ef7, #00d4aa);
+            border-radius: 2px; flex-shrink: 0;
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 0.8rem;
+        }
+
+        .gallery-item {
+            position: relative; overflow: hidden;
+            border-radius: 12px;
+            aspect-ratio: 4/3;
+            cursor: pointer;
+            background: var(--surface);
+        }
+
+        .gallery-item img {
+            width: 100%; height: 100%;
+            object-fit: cover;
+            transition: transform 0.4s ease;
+        }
+
+        .gallery-item:hover img { transform: scale(1.07); }
+
+        .gallery-item .overlay {
+            position: absolute; inset: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 60%);
+            opacity: 0; transition: opacity 0.3s;
+            display: flex; align-items: flex-end;
+            padding: 0.6rem;
+        }
+
+        .gallery-item:hover .overlay { opacity: 1; }
+
+        .gallery-item .overlay p {
+            font-size: 0.75rem; color: white;
+            line-height: 1.3;
+        }
+
+        /* ── Video Grid ───────────────────────────────────────────── */
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 1rem;
+        }
+
+        .video-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            overflow: hidden;
+            transition: transform 0.25s, box-shadow 0.25s;
+            text-decoration: none; color: inherit;
+            display: flex; flex-direction: column;
+        }
+
+        .video-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 16px 40px rgba(0,0,0,0.4);
+        }
+
+        .video-thumb {
+            position: relative; aspect-ratio: 16/9;
+            background: var(--surface); overflow: hidden;
+        }
+
+        .video-thumb img { width: 100%; height: 100%; object-fit: cover; }
+
+        .play-btn {
+            position: absolute; inset: 0;
+            display: flex; align-items: center; justify-content: center;
+            background: rgba(0,0,0,0.4);
+            transition: background 0.2s;
+        }
+
+        .play-btn i {
+            font-size: 2.2rem; color: white;
+            filter: drop-shadow(0 2px 8px rgba(0,0,0,0.6));
+            transition: transform 0.2s;
+        }
+
+        .video-card:hover .play-btn { background: rgba(0,0,0,0.2); }
+        .video-card:hover .play-btn i { transform: scale(1.15); }
+
+        .video-duration {
+            position: absolute; bottom: 6px; right: 8px;
+            background: rgba(0,0,0,0.8); color: white;
+            font-size: 0.72rem; padding: 2px 6px; border-radius: 4px;
+        }
+
+        .video-info { padding: 0.9rem; flex: 1; display: flex; flex-direction: column; gap: 0.35rem; }
+
+        .video-title {
+            font-size: 0.88rem; font-weight: 600; line-height: 1.4;
+            display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+        }
+
+        .video-meta { font-size: 0.75rem; color: var(--muted); }
+
+        /* ── Placement / Affiliation Cards ─────────────────────────── */
+        .info-list { display: flex; flex-direction: column; gap: 0.8rem; }
+
+        .info-item {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1rem;
+            transition: border-color 0.2s;
+        }
+
+        .info-item:hover { border-color: rgba(79,142,247,0.3); }
+
+        .info-item a { text-decoration: none; }
+
+        .info-item h4 {
+            font-size: 0.88rem; font-weight: 600; margin-bottom: 0.35rem;
+            color: var(--primary);
+        }
+
+        .info-item p { font-size: 0.82rem; color: var(--muted); line-height: 1.55; }
+
+        /* ── Bottom Wide Grid ─────────────────────────────────────── */
+        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; margin-bottom: 1.5rem; }
+        @media (max-width: 768px) { .two-col { grid-template-columns: 1fr; } }
+
+        /* ── Lightbox ─────────────────────────────────────────────── */
+        #lightbox {
+            display: none;
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.9);
+            z-index: 9999;
+            align-items: center; justify-content: center;
+        }
+
+        #lightbox.open { display: flex; }
+
+        #lightbox img {
+            max-width: 90vw; max-height: 90vh;
+            border-radius: 12px;
+            box-shadow: 0 0 60px rgba(0,0,0,0.8);
+        }
+
+        #lightbox .close-lb {
+            position: fixed; top: 1.5rem; right: 1.5rem;
+            background: rgba(255,255,255,0.1);
+            border: none; color: white;
+            width: 42px; height: 42px; border-radius: 50%;
+            font-size: 1.2rem; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        /* ── Utility ──────────────────────────────────────────────── */
+        .hidden { display: none !important; }
+        .text-sm { font-size: 0.85rem; }
+        .text-muted { color: var(--muted); }
+        .mt-auto { margin-top: auto; }
+    </style>
+</head>
+<body>
+
+<!-- Lightbox -->
+<div id="lightbox">
+    <button class="close-lb" onclick="closeLightbox()"><i class="fas fa-times"></i></button>
+    <img id="lightboxImg" src="" alt="">
+</div>
+
+<!-- Hero Search -->
+<section class="hero">
+    <div class="hero-badge"><i class="fas fa-graduation-cap"></i> College Intelligence Platform</div>
+    <h1>Engineering College<br>Deep Profile</h1>
+    <p>Get a comprehensive report on any engineering college — placements, affiliation, social presence, maps, images and videos.</p>
+
+    <div class="search-wrap">
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="Enter college name, e.g. PSV College of Engineering..."
+                   onkeydown="if(event.key==='Enter') searchCollege()">
+            <button id="searchBtn" onclick="searchCollege()">
+                <i class="fas fa-search"></i> Search
+            </button>
+        </div>
+    </div>
+</section>
+
+<!-- Error -->
+<div id="errorMsg"></div>
+
+<!-- Loader -->
+<div id="loader" style="display:none; text-align:center; padding:4rem 1rem;">
+    <div class="pulse-ring" style="margin:0 auto 1.2rem;"></div>
+    <p style="color:var(--muted); margin-bottom:1rem;">Fetching comprehensive profile…</p>
+    <div class="loader-steps">
+        <span class="step-chip"><i class="fas fa-globe"></i> Official Site</span>
+        <span class="step-chip"><i class="fab fa-instagram"></i> Instagram</span>
+        <span class="step-chip"><i class="fas fa-map-marker-alt"></i> Maps</span>
+        <span class="step-chip"><i class="fas fa-image"></i> Images</span>
+        <span class="step-chip"><i class="fab fa-youtube"></i> Videos</span>
+    </div>
+</div>
+
+<!-- Results -->
+<div id="results">
+
+    <!-- College Hero Card -->
+    <div class="college-hero">
+        <div id="heroAvatar" class="college-avatar-placeholder">🏛️</div>
+        <div class="college-meta">
+            <h2 id="resName">—</h2>
+            <p id="resDescription">—</p>
+            <div class="facts-row" id="resFacts"></div>
+        </div>
+    </div>
+
+    <!-- Top 3-col row: Social | Location | Official -->
+    <div class="info-grid">
+
+        <!-- Social Media -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon icon-pink"><i class="fas fa-share-nodes"></i></div>
+                <span class="card-title">Social Profiles</span>
+            </div>
+            <div class="social-grid" id="socialGrid"></div>
+        </div>
+
+        <!-- Location -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon icon-amber"><i class="fas fa-map-location-dot"></i></div>
+                <span class="card-title">Location & Contact</span>
+            </div>
+            <div class="location-row" id="locationInfo"></div>
+        </div>
+
+        <!-- Official Links -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon icon-green"><i class="fas fa-link"></i></div>
+                <span class="card-title">Quick Links</span>
+            </div>
+            <div class="social-grid" id="quickLinks"></div>
+        </div>
+
+    </div>
+
+    <!-- Image Gallery -->
+    <div class="gallery-section">
+        <div class="section-heading"><span></span> Campus Gallery</div>
+        <div class="gallery-grid" id="galleryGrid"></div>
+    </div>
+
+    <!-- Videos -->
+    <div style="margin-bottom:1.5rem;">
+        <div class="section-heading"><span></span> Related Videos</div>
+        <div class="video-grid" id="videoGrid"></div>
+    </div>
+
+    <!-- Placements & Affiliations -->
+    <div class="two-col">
+        <div>
+            <div class="section-heading"><span></span> Placement & Career Intel</div>
+            <div class="info-list" id="placementList"></div>
+        </div>
+        <div>
+            <div class="section-heading"><span></span> Affiliation & Accreditation</div>
+            <div class="info-list" id="affiliationList"></div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    function openLightbox(src) {
+        document.getElementById('lightboxImg').src = src;
+        document.getElementById('lightbox').classList.add('open');
+    }
+    function closeLightbox() {
+        document.getElementById('lightbox').classList.remove('open');
+    }
+    document.getElementById('lightbox').addEventListener('click', function(e) {
+        if (e.target === this) closeLightbox();
+    });
+
+    function socialLink(href, icon, label, cls) {
+        if (!href || href === 'Not found') return '';
+        return `<a href="${href}" target="_blank" class="social-btn ${cls}">
+            <i class="${icon}"></i> ${label}
+        </a>`;
+    }
+
+    function renderStars(rating) {
+        if (!rating) return '';
+        const full = Math.floor(rating);
+        const half = rating % 1 >= 0.5;
+        let s = '<span class="rating-stars">';
+        for (let i = 0; i < full; i++) s += '<i class="fas fa-star"></i>';
+        if (half) s += '<i class="fas fa-star-half-alt"></i>';
+        s += '</span>';
+        return s;
+    }
+
+    function capFirst(str) {
+        return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+
+    async function searchCollege() {
+        const query = document.getElementById('searchInput').value.trim();
+        if (!query) return;
+
+        document.getElementById('loader').style.display = 'block';
+        document.getElementById('results').style.display = 'none';
+        document.getElementById('errorMsg').style.display = 'none';
+        document.getElementById('searchBtn').disabled = true;
+
+        try {
+            const res = await fetch(`/api/college-info?collegeName=${encodeURIComponent(query)}`);
+            const d = await res.json();
+            if (!res.ok) throw new Error(d.error || 'Failed');
+
+            // ── Hero ───────────────────────────────────────────────
+            document.getElementById('resName').textContent = d.collegeName;
+            document.getElementById('resDescription').textContent = d.contactInfoSnippet || '—';
+
+            const avatar = document.getElementById('heroAvatar');
+            if (d.profileImage) {
+                avatar.outerHTML = `<img id="heroAvatar" class="college-avatar" src="${d.profileImage}" alt="${d.collegeName}" onerror="this.outerHTML='<div id=heroAvatar class=college-avatar-placeholder>🏛️</div>'">`;
+            }
+
+            // ── Facts chips ────────────────────────────────────────
+            const factsEl = document.getElementById('resFacts');
+            factsEl.innerHTML = '';
+            const factLabels = { founded:'📅 Est.', type:'🏫 Type', affiliation:'🔗', students:'👥 Students', campus:'🌿 Campus' };
+            Object.entries(d.facts || {}).slice(0, 6).forEach(([k, v]) => {
+                const chip = document.createElement('span');
+                chip.className = 'fact-chip';
+                chip.textContent = `${factLabels[k] || capFirst(k)}: ${v}`;
+                factsEl.appendChild(chip);
+            });
+
+            // ── Social Grid ────────────────────────────────────────
+            const sl = d.socialLinks || {};
+            document.getElementById('socialGrid').innerHTML = [
+                socialLink(sl.instagram, 'fab fa-instagram', 'Instagram', 'ig'),
+                socialLink(sl.facebook,  'fab fa-facebook',  'Facebook',  'fb'),
+                socialLink(sl.twitter,   'fab fa-x-twitter', 'Twitter/X', 'tw'),
+                socialLink(sl.youtube,   'fab fa-youtube',   'YouTube',   'yt'),
+                socialLink(sl.linkedin,  'fab fa-linkedin',  'LinkedIn',  'li'),
+            ].filter(Boolean).join('') || '<p class="text-muted text-sm">No social profiles found.</p>';
+
+            // ── Quick Links ────────────────────────────────────────
+            document.getElementById('quickLinks').innerHTML = [
+                socialLink(d.officialLink,        'fas fa-globe',         'Official Website', 'web'),
+                socialLink(d.location?.mapsLink,  'fas fa-map-marker-alt','View on Maps',     'maps'),
+            ].filter(Boolean).join('') || '<p class="text-muted text-sm">No links found.</p>';
+
+            // ── Location ───────────────────────────────────────────
+            const loc = d.location || {};
+            let locHtml = '';
+            if (loc.address && loc.address !== 'Not found')
+                locHtml += `<div class="row-item"><i class="fas fa-map-marker-alt"></i><span>${loc.address}</span></div>`;
+            if (loc.phone && loc.phone !== 'Not found')
+                locHtml += `<div class="row-item"><i class="fas fa-phone"></i><span>${loc.phone}</span></div>`;
+            if (loc.rating)
+                locHtml += `<div class="row-item"><i class="fas fa-star" style="color:#fbbf24"></i><span>${renderStars(loc.rating)} ${loc.rating}${loc.reviews ? ` (${loc.reviews.toLocaleString()} reviews)` : ''}</span></div>`;
+            if (loc.mapsLink && loc.mapsLink !== 'Not found')
+                locHtml += `<div class="row-item"><i class="fas fa-location-arrow"></i><a href="${loc.mapsLink}" target="_blank">Open in Google Maps</a></div>`;
+            document.getElementById('locationInfo').innerHTML = locHtml || '<p class="text-muted text-sm">Location data not available.</p>';
+
+            // ── Gallery ────────────────────────────────────────────
+            const gallery = document.getElementById('galleryGrid');
+            gallery.innerHTML = '';
+            (d.images || []).forEach(img => {
+                const div = document.createElement('div');
+                div.className = 'gallery-item';
+                div.onclick = () => openLightbox(img.original || img.thumbnail);
+                div.innerHTML = `
+                    <img src="${img.thumbnail}" alt="${img.title}" loading="lazy"
+                         onerror="this.parentElement.style.display='none'">
+                    <div class="overlay"><p>${img.title}</p></div>`;
+                gallery.appendChild(div);
+            });
+            if (!d.images?.length) gallery.innerHTML = '<p class="text-muted text-sm">No images available.</p>';
+
+            // ── Videos ────────────────────────────────────────────
+            const videoGrid = document.getElementById('videoGrid');
+            videoGrid.innerHTML = '';
+            (d.videos || []).forEach(v => {
+                const thumb = v.thumbnail || '';
+                const a = document.createElement('a');
+                a.href = v.link || '#'; a.target = '_blank';
+                a.className = 'video-card';
+                a.innerHTML = `
+                    <div class="video-thumb">
+                        ${thumb ? `<img src="${thumb}" alt="${v.title}" loading="lazy">` : ''}
+                        <div class="play-btn"><i class="fas fa-play-circle"></i></div>
+                        ${v.duration ? `<span class="video-duration">${v.duration}</span>` : ''}
+                    </div>
+                    <div class="video-info">
+                        <div class="video-title">${v.title || 'Untitled'}</div>
+                        <div class="video-meta">${[v.channel, v.published].filter(Boolean).join(' · ')}</div>
+                    </div>`;
+                videoGrid.appendChild(a);
+            });
+            if (!d.videos?.length) videoGrid.innerHTML = '<p class="text-muted text-sm">No videos found.</p>';
+
+            // ── Placements ─────────────────────────────────────────
+            const pl = document.getElementById('placementList');
+            pl.innerHTML = '';
+            (d.placements || []).forEach(p => {
+                pl.innerHTML += `<div class="info-item">
+                    <a href="${p.link}" target="_blank"><h4>${p.title || '—'}</h4></a>
+                    <p>${p.snippet || '—'}</p>
+                </div>`;
+            });
+            if (!d.placements?.length) pl.innerHTML = '<p class="text-muted text-sm">No placement data found.</p>';
+
+            // ── Affiliations ───────────────────────────────────────
+            const af = document.getElementById('affiliationList');
+            af.innerHTML = '';
+            (d.affiliations || []).forEach(a => {
+                af.innerHTML += `<div class="info-item">
+                    <a href="${a.link}" target="_blank"><h4>${a.title || '—'}</h4></a>
+                    <p>${a.snippet || '—'}</p>
+                </div>`;
+            });
+            if (!d.affiliations?.length) af.innerHTML = '<p class="text-muted text-sm">No affiliation data found.</p>';
+
+            // Show results
+            document.getElementById('loader').style.display = 'none';
+            const resultsEl = document.getElementById('results');
+            resultsEl.style.display = 'block';
+            resultsEl.style.animation = 'none';
+            void resultsEl.offsetHeight;
+            resultsEl.style.animation = 'fadeUp 0.6s ease forwards';
+
+        } catch (err) {
+            document.getElementById('loader').style.display = 'none';
+            const errEl = document.getElementById('errorMsg');
+            errEl.innerHTML = `<i class="fas fa-triangle-exclamation"></i> ${err.message}`;
+            errEl.style.display = 'block';
+        } finally {
+            document.getElementById('searchBtn').disabled = false;
+        }
+    }
+</script>
+</body>
+</html>

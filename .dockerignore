@@ -1,0 +1,17 @@
+# Docker ignore file - prevents secrets from being included in the container image
+.env
+.env.*
+node_modules
+.git
+.gitignore
+*.log
+*.md
+firebase.json
+.firebase/
+.vscode/
+otp_latest.txt
+fix_*.js
+patch_*.js
+check_*.js
+remove_*.js
+database/

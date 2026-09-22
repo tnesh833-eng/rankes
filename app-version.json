@@ -1,0 +1,8 @@
+{
+  "version": "1.0.1",
+  "changes": [
+    "Security enhancements: HTTPS, Rate Limiting, HTTP-only cookies",
+    "Added 100 free tokens on registration",
+    "Added Subscription Tab and Certificate Generation"
+  ]
+}
