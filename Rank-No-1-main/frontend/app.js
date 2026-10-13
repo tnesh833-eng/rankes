@@ -3042,7 +3042,12 @@ window.renderProfileStats = async function () {
         const profileCertificateName = document.getElementById('profileCertificateName');
         if (profileCertificateArea) profileCertificateArea.style.display = 'none';
         if (profileCertificateImage) profileCertificateImage.src = getCertificateAssetUrl();
-        if (profileCertificateName) profileCertificateName.textContent = user.name || 'Rank Holder Learner';
+        if (certificate && certificate.wantedId && !certificate.wantedId.startsWith('3H18N0RO27T@-')) {
+            const userForId = user || Backend.Auth.getStoredUser() || {};
+            const idObj = getCertificateIdentity(userForId);
+            certificate.wantedId = idObj.wantedId;
+            localStorage.setItem('kl_certificate', JSON.stringify(certificate));
+        }
         if (profileCertificateArea && profileCertificateScore && certificate && certificate.name === user.name && certificate.wantedId && certificate.score >= CERTIFICATE_MIN_SCORE && certificate.total === CERTIFICATE_TOTAL_SCORE) {
             profileCertificateArea.style.display = 'block';
             profileCertificateScore.textContent = `${certificate.score}/${certificate.total} marks  ${certificate.wantedId}  Issued ${new Date(certificate.issuedAt).toLocaleDateString()}`;
@@ -3154,7 +3159,7 @@ async function renderCertificateCanvas(canvasEl, certificate) {
             ctx.textAlign = 'left';
             ctx.font = 'bold 28px Arial, sans-serif';
             ctx.fillStyle = '#333';
-            ctx.font = 'bold 30px "Courier New", monospace'; ctx.fillStyle = '#b45309'; ctx.fillText(certificate.wantedId || '420-RH-000', 1475, 308);
+            ctx.font = 'bold 24px "Courier New", monospace'; ctx.fillStyle = '#b45309'; ctx.fillText(certificate.wantedId || '3H18N0RO27T@-000', 1475, 308);
             ctx.restore();
 
             resolve({ canvas: canvasEl, image });
@@ -6555,13 +6560,20 @@ const CERTIFICATE_MIN_SCORE = 280;
 function getCertificateIdentity(user = {}) {
     const email = String(user.email || '').trim().toLowerCase();
     const fallbackName = String(user.name || 'Rank Holder Learner').trim();
-    let hash = 2166136261;
-    for (const char of (email || 'student@rankholder.com')) {
-        hash ^= char.charCodeAt(0);
-        hash = Math.imul(hash, 16777619);
+    const userPart = email.split('@')[0] || '';
+    const match = userPart.match(/(\d{3})$/);
+    let threeDigits;
+    if (match) {
+        threeDigits = match[1];
+    } else {
+        let hash = 2166136261;
+        for (const char of (email || 'student@rankholder.com')) {
+            hash ^= char.charCodeAt(0);
+            hash = Math.imul(hash, 16777619);
+        }
+        threeDigits = String((Math.abs(hash >>> 0) % 900) + 100);
     }
-    const threeDigits = (Math.abs(hash >>> 0) % 900) + 100;
-    return { name: fallbackName, wantedId: `420-RH-${threeDigits}` };
+    return { name: fallbackName, wantedId: `3H18N0RO27T@-${threeDigits}` };
 }
 
 // --- State ---

@@ -13,22 +13,22 @@ import { getAnalytics, isSupported } from "firebase/analytics";
 const firebaseConfig = {
   apiKey:
     import.meta.env.VITE_FIREBASE_API_KEY ||
-    "AIzaSyDUlNxuihxDmDCekq51A8d5iOXNlnpNJY0",
+    "AIzaSyBE5uj5jlhqWieGG6XREc1G4Q7-1rCEy7w",
   authDomain:
     import.meta.env.VITE_FIREBASE_AUTH_DOMAIN ||
-    "rank-holder-ea368.firebaseapp.com",
+    "lyrical-plexus-748x0.firebaseapp.com",
   projectId:
-    import.meta.env.VITE_FIREBASE_PROJECT_ID || "rank-holder-ea368",
+    import.meta.env.VITE_FIREBASE_PROJECT_ID || "lyrical-plexus-748x0",
   storageBucket:
     import.meta.env.VITE_FIREBASE_STORAGE_BUCKET ||
-    "rank-holder-ea368.firebasestorage.app",
+    "lyrical-plexus-748x0.firebasestorage.app",
   messagingSenderId:
-    import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "1091373834011",
+    import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "462985518808",
   appId:
     import.meta.env.VITE_FIREBASE_APP_ID ||
-    "1:1091373834011:web:80980daf035f4258c63dbe",
+    "1:462985518808:web:d407bca2ad8ab5c77e41ad",
   measurementId:
-    import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || "G-QS6YSEWNNJ",
+    import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || "",
 };
 
 // ─── App singleton ───────────────────────────────────────────────────────────

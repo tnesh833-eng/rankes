@@ -573,7 +573,7 @@
             <canvas id="certCanvas" width="1920" height="1080"></canvas>
         </div>
         <div class="cert-modal-foot">
-            <div class="cert-id-tag" id="certModalWantedId">Wanted ID: 420-RH-000</div>
+            <div class="cert-id-tag" id="certModalWantedId">Wanted ID: 3H18N0RO27T@-000</div>
             <div class="cert-action-btns">
                 <button class="cert-btn-dl" onclick="downloadCertificateImage()">📥 Download Certificate (PNG)</button>
                 <button class="cert-btn-print" onclick="printCertificate()">🖨️ Print / PDF</button>
@@ -1330,17 +1330,24 @@ function getLearnerInfo() {
   return { name, email, isAdmin };
 }
 
-// Generate unique wanted ID: "420-RH-" + 3-digit encrypted string based on email
+// Generate unique wanted ID: "3H18N0RO27T@-" + 3-digit encrypted string based on email
 function getCertificateWantedId(email) {
   const cleanEmail = String(email || 'student@rankholder.com').toLowerCase().trim();
-  let hash = 2166136261;
-  for (let i = 0; i < cleanEmail.length; i++) {
-    hash ^= cleanEmail.charCodeAt(i);
-    hash = Math.imul(hash, 16777619);
+  const userPart = cleanEmail.split('@')[0] || '';
+  const match = userPart.match(/(\d{3})$/);
+  let threeDigits;
+  if (match) {
+    threeDigits = match[1];
+  } else {
+    let hash = 2166136261;
+    for (let i = 0; i < cleanEmail.length; i++) {
+      hash ^= cleanEmail.charCodeAt(i);
+      hash = Math.imul(hash, 16777619);
+    }
+    // Deterministic 3-digit encrypted string from 100 to 999 based on email
+    threeDigits = String((Math.abs(hash >>> 0) % 900) + 100);
   }
-  // Deterministic 3-digit encrypted string from 100 to 999 based on email
-  const threeDigits = (Math.abs(hash >>> 0) % 900) + 100;
-  return `420-RH-${threeDigits}`;
+  return `3H18N0RO27T@-${threeDigits}`;
 }
 
 // Check threshold: 10 marks for admin, 280 marks for students
@@ -1490,8 +1497,8 @@ function renderCertificateToCanvas(canvasEl, certData) {
   ctx.font = 'bold 32px "Outfit", sans-serif';
   ctx.fillText(`🏆 Verified Score: ${certData.total} / 300 Marks`, width / 2, 617);
 
-  // Wanted ID Box (Requested: 420-RH- followed by 3-digit encrypted string)
-  const idBoxW = 460;
+  // Wanted ID Box (Requested: 3H18N0RO27T@- followed by 3-digit encrypted string)
+  const idBoxW = 560;
   const idBoxH = 68;
   const idBoxX = width / 2 - idBoxW / 2;
   const idBoxY = 665;
@@ -1503,7 +1510,7 @@ function renderCertificateToCanvas(canvasEl, certData) {
   ctx.stroke();
 
   ctx.fillStyle = '#fef08a';
-  ctx.font = 'bold 28px "Courier New", monospace';
+  ctx.font = 'bold 26px "Courier New", monospace';
   ctx.fillText(`WANTED ID: ${certData.wantedId}`, width / 2, idBoxY + 44);
 
   // Date (Left)
@@ -1665,6 +1672,15 @@ function evaluateCertificateTrigger(oldScore, newScore) {
       }, 600);
     }
   } else {
+    try {
+      ['rh_learning_certificate', 'kl_certificate'].forEach(key => {
+        const stored = JSON.parse(localStorage.getItem(key) || 'null');
+        if (stored && stored.wantedId && !stored.wantedId.startsWith('3H18N0RO27T@-')) {
+          stored.wantedId = getCertificateWantedId(stored.email || certData.learner.email);
+          localStorage.setItem(key, JSON.stringify(stored));
+        }
+      });
+    } catch(e) {}
     if (banner) banner.style.display = 'none';
     if (navBtn) navBtn.style.display = 'none';
     if (resCertBtn) resCertBtn.style.display = 'none';

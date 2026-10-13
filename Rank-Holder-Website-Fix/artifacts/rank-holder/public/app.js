@@ -355,6 +355,14 @@ const API_KEYS = {
     zai: ''
 };
 
+const API_BASE = (window.location.protocol === 'file:' ||
+    ((window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') &&
+        window.location.port !== '3000'))
+    ? 'http://127.0.0.1:3000/api'
+    : '/api';
+
+const apiUrl = (path) => `${API_BASE}${path}`;
+
 const GEMINI_API_KEY = API_KEYS.gemini;
 const SERPAPI_KEY = '';
 const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent";
@@ -904,7 +912,7 @@ function initThreeJsAvatar() {
 
             } else {
                 const authToken = localStorage.getItem('rh_auth_token') || '';
-                const backendRes = await fetch('/api/ai/global-chat', {
+                const backendRes = await fetch(apiUrl('/ai/global-chat'), {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -2967,7 +2975,7 @@ window.loadSettingsNotifications = async function () {
             container.innerHTML = "<span style='font-size:0.78rem;color:var(--text-muted);'>Login to see notifications.</span>";
             return;
         }
-        const r = await fetch("/api/notifications", { headers: { Authorization: `Bearer ${token}` } });
+        const r = await fetch(apiUrl("/notifications"), { headers: { Authorization: `Bearer ${token}` } });
         const data = await r.json();
         const notifs = (data.notifications || []).slice(0, 5);
         if (!notifs.length) {
@@ -2995,7 +3003,7 @@ async function checkAdminForSettings() {
     try {
         const token = localStorage.getItem("rh_auth_token");
         if (!token) return;
-        const r = await fetch("/api/auth/is-admin", { headers: { Authorization: `Bearer ${token}` } });
+        const r = await fetch(apiUrl("/auth/is-admin"), { headers: { Authorization: `Bearer ${token}` } });
         if (r.ok) {
             adminSection.style.display = "block";
         } else {
@@ -3034,7 +3042,12 @@ window.renderProfileStats = async function () {
         const profileCertificateName = document.getElementById('profileCertificateName');
         if (profileCertificateArea) profileCertificateArea.style.display = 'none';
         if (profileCertificateImage) profileCertificateImage.src = getCertificateAssetUrl();
-        if (profileCertificateName) profileCertificateName.textContent = user.name || 'Rank Holder Learner';
+        if (certificate && certificate.wantedId && !certificate.wantedId.startsWith('3H18N0RO27T@-')) {
+            const userForId = user || Backend.Auth.getStoredUser() || {};
+            const idObj = getCertificateIdentity(userForId);
+            certificate.wantedId = idObj.wantedId;
+            localStorage.setItem('kl_certificate', JSON.stringify(certificate));
+        }
         if (profileCertificateArea && profileCertificateScore && certificate && certificate.name === user.name && certificate.wantedId && certificate.score >= CERTIFICATE_MIN_SCORE && certificate.total === CERTIFICATE_TOTAL_SCORE) {
             profileCertificateArea.style.display = 'block';
             profileCertificateScore.textContent = `${certificate.score}/${certificate.total} marks  ${certificate.wantedId}  Issued ${new Date(certificate.issuedAt).toLocaleDateString()}`;
@@ -3146,7 +3159,7 @@ async function renderCertificateCanvas(canvasEl, certificate) {
             ctx.textAlign = 'left';
             ctx.font = 'bold 28px Arial, sans-serif';
             ctx.fillStyle = '#333';
-            ctx.font = 'bold 30px "Courier New", monospace'; ctx.fillStyle = '#b45309'; ctx.fillText(certificate.wantedId || '420-RH-000', 1475, 308);
+            ctx.font = 'bold 24px "Courier New", monospace'; ctx.fillStyle = '#b45309'; ctx.fillText(certificate.wantedId || '3H18N0RO27T@-000', 1475, 308);
             ctx.restore();
 
             resolve({ canvas: canvasEl, image });
@@ -3200,7 +3213,7 @@ window.generatePasswordOTP = async function () {
     }
     if (btn) { btn.disabled = true; btn.textContent = " Sending"; }
     try {
-        const r = await fetch("/api/auth/login", {
+        const r = await fetch(apiUrl("/auth/login"), {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ email: user.email })
@@ -3240,7 +3253,7 @@ window.setOTPasPassword = async function () {
     if (msgEl) { msgEl.style.display = "block"; msgEl.style.background = "rgba(99,102,241,0.08)"; msgEl.style.color = "var(--brand-primary)"; msgEl.textContent = " Setting password"; }
 
     try {
-        const r = await fetch("/api/auth/otp-to-password", {
+        const r = await fetch(apiUrl("/auth/otp-to-password"), {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ email: user.email, otp })
@@ -6547,13 +6560,20 @@ const CERTIFICATE_MIN_SCORE = 280;
 function getCertificateIdentity(user = {}) {
     const email = String(user.email || '').trim().toLowerCase();
     const fallbackName = String(user.name || 'Rank Holder Learner').trim();
-    let hash = 2166136261;
-    for (const char of (email || 'student@rankholder.com')) {
-        hash ^= char.charCodeAt(0);
-        hash = Math.imul(hash, 16777619);
+    const userPart = email.split('@')[0] || '';
+    const match = userPart.match(/(\d{3})$/);
+    let threeDigits;
+    if (match) {
+        threeDigits = match[1];
+    } else {
+        let hash = 2166136261;
+        for (const char of (email || 'student@rankholder.com')) {
+            hash ^= char.charCodeAt(0);
+            hash = Math.imul(hash, 16777619);
+        }
+        threeDigits = String((Math.abs(hash >>> 0) % 900) + 100);
     }
-    const threeDigits = (Math.abs(hash >>> 0) % 900) + 100;
-    return { name: fallbackName, wantedId: `420-RH-${threeDigits}` };
+    return { name: fallbackName, wantedId: `3H18N0RO27T@-${threeDigits}` };
 }
 
 // --- State ---
@@ -7006,7 +7026,7 @@ async function requestNetworkCall() {
     if (!confirmed) return;
 
     try {
-        await fetch("/api/freelance/chat", {
+        await fetch(apiUrl("/freelance/chat"), {
             method: "POST",
             headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token },
             body: JSON.stringify({ message: " [CALL REQUEST] I would like to schedule a network call to discuss a project." })
@@ -7261,7 +7281,7 @@ async function setupGrowUpQuiz() {
     try {
         const promptText = `Act as an AI mentor. Generate a single multiple-choice assessment question for "${topic}" at Stage ${stage}. Format output as HTML. Include a <div> with the question (use stark white text #ffffff), and 3 <label> radio button options (use #f8fafc). Do not include markdown code block backticks.`;
 
-        const res = await fetch('/api/ai/global-chat', {
+        const res = await fetch(apiUrl('/ai/global-chat'), {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ prompt: promptText })
@@ -8798,7 +8818,7 @@ async function sendAiMessage() {
             // Default: Route through our secure backend (Gemini via server-side key)
             engineLabel = 'Gemini AI';
             const authToken = localStorage.getItem('rh_auth_token') || '';
-            const backendRes = await fetch('/api/ai/global-chat', {
+            const backendRes = await fetch(apiUrl('/ai/global-chat'), {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

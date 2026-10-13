@@ -373,7 +373,7 @@
             <h2 class="auth-title">Verify Your Login</h2>
             <p class="auth-subtitle">📱 6-digit code sent to <strong id="displayEmail" style="color:var(--brand-primary);"></strong></p>
             
-            <div style="background: rgba(99,102,241,0.08); border: 1px solid rgba(99,102,241,0.25); border-radius: 8px; padding: 10px 14px; font-size: 0.82rem; color: var(--text-secondary); margin-bottom: 12px; line-height: 1.4; text-align: left;">
+            <div id="otpStepInfoBox" style="background: rgba(99,102,241,0.08); border: 1px solid rgba(99,102,241,0.25); border-radius: 8px; padding: 10px 14px; font-size: 0.82rem; color: var(--text-secondary); margin-bottom: 12px; line-height: 1.4; text-align: left;">
                 <div>✉️ <strong>Open Gmail:</strong> Code sent to your inbox (valid for 10 mins).</div>
                 <div style="margin-top: 5px; color: #fbbf24; font-size: 0.78rem;">
                     ⚠️ <strong>Can't find it?</strong> Please check your Gmail <strong>Spam / Junk</strong> folder or <strong>Promotions</strong> tab!
@@ -507,7 +507,39 @@
             } catch (err) {
                 const errDiv = document.getElementById('loginError');
                 if (errDiv) {
-                    errDiv.textContent = err.message || 'Error completing Google sign-in.';
+                    const msg = err.message || '';
+                    if (msg.includes('token-service-api') || msg.includes('securetoken') || msg.includes('identitytoolkit')) {
+                        errDiv.innerHTML = `
+                            <div style="background: rgba(99, 102, 241, 0.15); border: 1px solid rgba(99, 102, 241, 0.4); border-radius: 10px; padding: 14px; text-align: left; font-size: 0.85rem; line-height: 1.5; color: #e0e7ff;">
+                                <div style="font-weight: 800; color: #a5b4fc; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+                                    <span>⏳</span> Google Auth Activating (1-2 mins)
+                                </div>
+                                <div style="margin-bottom: 8px; color: #f1f5f9; font-size: 0.82rem;">
+                                    Google Cloud's token service is currently initializing for this newly provisioned project. It will be ready in a couple of minutes.
+                                </div>
+                                <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(99, 102, 241, 0.25); font-size: 0.82rem; color: #34d399; font-weight: 700;">
+                                    👉 Click the purple <strong>"Continue with Email →"</strong> button below to log in immediately!
+                                </div>
+                            </div>
+                        `;
+                    } else if (err.code === 'auth/unauthorized-domain' || msg.includes('unauthorized-domain')) {
+                        const curHost = window.location.hostname;
+                        errDiv.innerHTML = `
+                            <div style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); border-radius: 10px; padding: 14px; text-align: left; font-size: 0.85rem; line-height: 1.5; color: #fecdd3;">
+                                <div style="font-weight: 800; color: #fda4af; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+                                    <span>⚠️</span> Domain Not Authorized in Firebase
+                                </div>
+                                <div style="margin-bottom: 8px; color: #f1f5f9;">
+                                    Authorized domain needed: <code>${curHost}</code>
+                                </div>
+                                <div style="font-size: 0.8rem; color: #cbd5e1; margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(239, 68, 68, 0.25);">
+                                    💡 <strong>Instant Access:</strong> Click <strong>"Continue with Email →"</strong> below to sign in right now!
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        errDiv.textContent = err.message || 'Error completing Google sign-in.';
+                    }
                     errDiv.classList.remove('hidden');
                 }
             }
@@ -565,6 +597,17 @@
                     if (res.demo_otp) {
                         const digits = res.demo_otp.split('');
                         otpInputs.forEach((inp, idx) => { if (digits[idx]) inp.value = digits[idx]; });
+                        const infoBox = document.getElementById('otpStepInfoBox');
+                        if (infoBox) {
+                            infoBox.innerHTML = `
+                                <div style="color: #34d399; font-weight: 700; margin-bottom: 4px;">
+                                    🔑 Code Pre-filled: <span style="letter-spacing: 2px;">${res.demo_otp}</span>
+                                </div>
+                                <div style="color: var(--text-secondary); font-size: 0.8rem;">
+                                    Your 6-digit verification code has been automatically filled below. Click <strong>"Verify & Enter Platform →"</strong> to log in.
+                                </div>
+                            `;
+                        }
                     }
                     otpInputs[0].focus();
                 } else {
@@ -605,7 +648,42 @@
                         throw new Error('Google Sign-In failed.');
                     }
                 } catch (err) {
-                    errDiv.textContent = err.message || 'Error signing in with Google.';
+                    const msg = err.message || '';
+                    if (msg.includes('token-service-api') || msg.includes('securetoken') || msg.includes('identitytoolkit')) {
+                        errDiv.innerHTML = `
+                            <div style="background: rgba(99, 102, 241, 0.15); border: 1px solid rgba(99, 102, 241, 0.4); border-radius: 10px; padding: 14px; text-align: left; font-size: 0.85rem; line-height: 1.5; color: #e0e7ff;">
+                                <div style="font-weight: 800; color: #a5b4fc; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+                                    <span>⏳</span> Google Auth Activating (1-2 mins)
+                                </div>
+                                <div style="margin-bottom: 8px; color: #f1f5f9; font-size: 0.82rem;">
+                                    Google Cloud's token service is currently initializing for this newly provisioned project. It will be ready in a couple of minutes.
+                                </div>
+                                <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(99, 102, 241, 0.25); font-size: 0.82rem; color: #34d399; font-weight: 700;">
+                                    👉 Click the purple <strong>"Continue with Email →"</strong> button above to log in immediately!
+                                </div>
+                            </div>
+                        `;
+                    } else if (err.code === 'auth/unauthorized-domain' || msg.includes('unauthorized-domain')) {
+                        const curHost = window.location.hostname;
+                        errDiv.innerHTML = `
+                            <div style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); border-radius: 10px; padding: 14px; text-align: left; font-size: 0.85rem; line-height: 1.5; color: #fecdd3;">
+                                <div style="font-weight: 800; color: #fda4af; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+                                    <span>⚠️</span> Domain Not Authorized in Firebase
+                                </div>
+                                <div style="margin-bottom: 8px; color: #f1f5f9;">
+                                    Firebase Google Sign-In requires your domain to be authorized in Firebase Console:
+                                    <div style="margin: 6px 0; background: rgba(0,0,0,0.4); padding: 6px 10px; border-radius: 6px; font-family: monospace; font-size: 0.82rem; color: #38bdf8; word-break: break-all; border: 1px solid rgba(56,189,248,0.3);">
+                                        ${curHost}
+                                    </div>
+                                </div>
+                                <div style="font-size: 0.8rem; color: #cbd5e1; margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(239, 68, 68, 0.25);">
+                                    💡 <strong>Instant Access:</strong> Use <strong>"Continue with Email →"</strong> above to sign in right now without any Firebase setup!
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        errDiv.textContent = err.message || 'Error signing in with Google.';
+                    }
                     errDiv.classList.remove('hidden');
                 } finally {
                     // Re-enable button

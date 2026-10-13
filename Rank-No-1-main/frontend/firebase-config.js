@@ -14,13 +14,12 @@
  */
 
 const firebaseConfig = {
-    apiKey: "AIzaSyDUlNxuihxDmDCekq51A8d5iOXNlnpNJY0",
-    authDomain: "rank-holder-ea368.firebaseapp.com",
-    projectId: "rank-holder-ea368",
-    storageBucket: "rank-holder-ea368.firebasestorage.app",
-    messagingSenderId: "1091373834011",
-    appId: "1:1091373834011:web:80980daf035f4258c63dbe",
-    measurementId: "G-QS6YSEWNNJ"
+    apiKey: "AIzaSyBE5uj5jlhqWieGG6XREc1G4Q7-1rCEy7w",
+    authDomain: "lyrical-plexus-748x0.firebaseapp.com",
+    projectId: "lyrical-plexus-748x0",
+    storageBucket: "lyrical-plexus-748x0.firebasestorage.app",
+    messagingSenderId: "462985518808",
+    appId: "1:462985518808:web:d407bca2ad8ab5c77e41ad"
 };
 
 /* ── Load Firebase SDK lazily via CDN ─────────────────────── */
@@ -42,10 +41,11 @@ const firebaseConfig = {
             if (scriptsLoaded === 2) {
                 try {
                     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-                    // Initialize Analytics
-                    firebase.analytics();
+                    try {
+                        if (firebaseConfig.measurementId) firebase.analytics();
+                    } catch (_) {}
                     window._firebaseLoaded = true;
-                    console.log('🔥 Firebase Auth & Analytics initialized');
+                    console.log('🔥 Firebase Auth initialized');
                     callback();
                 } catch (e) {
                     console.warn('⚠️ Firebase init failed:', e.message);
