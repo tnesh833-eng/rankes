@@ -11,7 +11,6 @@ import {
   useGetBillingSubscription,
 } from '@workspace/api-client-react';
 import { ErrorBoundary } from '@/components/error-boundary';
-import { FirebaseAuthBridge } from '@/components/firebase-auth-bridge';
 import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import type { AuthFeedback, RankHolderUser } from '@/lib/auth-types';
@@ -168,7 +167,7 @@ function Login() {
       <section className="auth-card">
         <img className="avatar" src="/brand/career-avatar.jpg" alt="" />
         <h1>{mode === 'register' ? 'Create your account' : 'Sign in to Rank Holder'}</h1>
-        <p>Use your email and password, or continue securely with Google.</p>
+        <p>Use your email and password to access your account.</p>
 
 
 
@@ -182,9 +181,8 @@ function Login() {
           {mode === 'register' ? 'Already have an account? Sign in' : 'New to Rank Holder? Create an account'}
         </button>
         {feedback && feedback.kind === 'error' && <div className="auth-message is-error" role="alert" data-testid="status-auth-feedback">{feedback.message}</div>}
-        <div className="divider">OR</div>
-        <button className="button google-button" type="button" onClick={googleSignIn} data-testid="button-google-sign-in"><span className="google-g">G</span> Continue with Google</button>
-        <p className="auth-foot"><LockKeyhole size={11} style={{ verticalAlign: 'middle', marginRight: 5 }} />Secure sign-in, verified by Firebase.</p>
+
+        <p className="auth-foot"><LockKeyhole size={11} style={{ verticalAlign: 'middle', marginRight: 5 }} />Secure sign-in with email credentials.</p>
       </section>
     </main>
   );
@@ -393,7 +391,6 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <FirebaseAuthBridge />
         <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, '')}>
           <Router />
         </WouterRouter>

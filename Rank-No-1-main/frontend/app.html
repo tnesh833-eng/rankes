@@ -4359,6 +4359,26 @@
                                     <option value="zai"> Z.ai Complex Reasoning & Problem Solving</option>
 
                                 </select>
+                                <!-- Dedicated Voice Audio Controls Toolbar: Reagain & Stop -->
+                                <div style="margin-top:12px; padding:12px; background:rgba(15,23,42,0.7); border:1px solid rgba(56,189,248,0.28); border-radius:12px;">
+                                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                                        <span style="font-size:0.72rem; font-weight:700; color:#94a3b8; text-transform:uppercase; letter-spacing:0.04em;">Voice Playback</span>
+                                        <span id="voiceLiveTag" style="font-size:0.68rem; font-weight:700; color:#64748b; padding:2px 8px; border-radius:10px; background:rgba(255,255,255,0.06);">Idle</span>
+                                    </div>
+                                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                                        <button type="button" class="btn btn-voice-reagain" id="btnVoiceReagainAvatar" onclick="voiceReagain()" title="Teach / Voice Previous Sentence Again"
+                                            style="padding:8px 6px; font-size:0.78rem; font-weight:700; border-radius:8px; display:flex; align-items:center; justify-content:center; gap:5px; background:linear-gradient(135deg, rgba(56,189,248,0.2), rgba(99,102,241,0.25)); border:1px solid rgba(56,189,248,0.45); color:#38bdf8; cursor:pointer;">
+                                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>
+                                            <span>Reagain</span>
+                                        </button>
+                                        <button type="button" class="btn btn-voice-stop" id="btnVoiceStopAvatar" onclick="voiceStop()" title="Immediately Stop Voice Reading"
+                                            style="padding:8px 6px; font-size:0.78rem; font-weight:700; border-radius:8px; display:flex; align-items:center; justify-content:center; gap:5px; background:linear-gradient(135deg, rgba(244,63,94,0.18), rgba(225,29,72,0.28)); border:1px solid rgba(244,63,94,0.45); color:#fb7185; cursor:pointer;">
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16" rx="2"></rect></svg>
+                                            <span>Stop</span>
+                                        </button>
+                                    </div>
+                                </div>
+
 
                             </div>
 
@@ -4398,7 +4418,18 @@
 
                                 </div>
 
-                                <div style="margin-left:auto; display:flex; align-items:center; gap:6px;">
+                                <div style="margin-left:auto; display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                                    <!-- Voice Action Buttons: Reagain & Stop -->
+                                    <button type="button" class="btn btn-voice-reagain" id="btnVoiceReagainHeader" onclick="voiceReagain()" title="Teach / Voice Previous Sentence or Lesson Again"
+                                        style="padding:6px 13px; font-size:0.78rem; font-weight:700; border-radius:8px; display:inline-flex; align-items:center; gap:6px; background:linear-gradient(135deg, rgba(56,189,248,0.2), rgba(99,102,241,0.25)); border:1px solid rgba(56,189,248,0.5); color:#38bdf8; cursor:pointer; transition:all 0.2s;">
+                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>
+                                        <span>Reagain</span>
+                                    </button>
+                                    <button type="button" class="btn btn-voice-stop" id="btnVoiceStopHeader" onclick="voiceStop()" title="Immediately Stop Voice Reading"
+                                        style="padding:6px 13px; font-size:0.78rem; font-weight:700; border-radius:8px; display:inline-flex; align-items:center; gap:6px; background:linear-gradient(135deg, rgba(244,63,94,0.2), rgba(225,29,72,0.3)); border:1px solid rgba(244,63,94,0.5); color:#fb7185; cursor:pointer; transition:all 0.2s;">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16" rx="2"></rect></svg>
+                                        <span>Stop</span>
+                                    </button>
                                     <button class="btn btn-wiki" onclick="clearAiChat()"
                                         style="padding:6px 12px; font-size:0.75rem;">Clear Chat</button>
                                 </div>
@@ -4427,16 +4458,26 @@
 
                             <!-- Chat Input & Tools -->
                             <div style="display:flex; flex-direction:column; gap:8px;">
-                                <div style="display:flex; gap:8px;">
+                                <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
                                     <input type="text" id="aiChatInput" class="input-control"
-                                        placeholder="Ask anything... (e.g. Generate a Python script, Write an email)"
-                                        style="flex:1;" onkeydown="if(event.key==='Enter') sendAiMessage()">
+                                        placeholder="Ask anything... (e.g. Practice HR answers, grammar check, tech topic)"
+                                        style="flex:1; min-width:200px;" onkeydown="if(event.key==='Enter') sendAiMessage()">
+                                    <button type="button" class="btn btn-voice-reagain" id="btnVoiceReagainInput" onclick="voiceReagain()" title="Teach / Voice Previous Sentence Again"
+                                        style="padding:0 14px; height:38px; font-size:0.8rem; font-weight:700; border-radius:8px; display:inline-flex; align-items:center; gap:6px; background:rgba(56,189,248,0.15); border:1px solid rgba(56,189,248,0.45); color:#38bdf8; cursor:pointer; white-space:nowrap; transition:all 0.2s;">
+                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>
+                                        <span>Reagain</span>
+                                    </button>
+                                    <button type="button" class="btn btn-voice-stop" id="btnVoiceStopInput" onclick="voiceStop()" title="Immediately Stop Voice Reading"
+                                        style="padding:0 14px; height:38px; font-size:0.8rem; font-weight:700; border-radius:8px; display:inline-flex; align-items:center; gap:6px; background:rgba(244,63,94,0.16); border:1px solid rgba(244,63,94,0.45); color:#fb7185; cursor:pointer; white-space:nowrap; transition:all 0.2s;">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16" rx="2"></rect></svg>
+                                        <span>Stop</span>
+                                    </button>
                                     <button class="btn btn-mic" id="aiMicBtn" onclick="toggleAiSpeech()"
-                                        style="padding:0 16px;">
+                                        style="padding:0 16px; height:38px;">
                                         <span id="aiMicBtnText">Speak</span>
                                     </button>
                                     <button class="btn btn-primary" onclick="sendAiMessage()"
-                                        style="padding:0 20px;">Send</button>
+                                        style="padding:0 20px; height:38px;">Send</button>
                                 </div>
                             </div>
 

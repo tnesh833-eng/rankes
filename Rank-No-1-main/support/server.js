@@ -1583,19 +1583,14 @@ function filterProfanity(text) {
 // Ordered list of Gemini models to try. The API rotates model names over time,
 // so we attempt each in turn and use the first one that returns real text.
 const GEMINI_MODEL_FALLBACKS = [
-    "gemini-3.6-flash",
+    "gemini-2.5-flash",
     "gemini-3.8-flash",
-    "gemini-3.7-flash",
-    "gemini-3.1-flash-lite",
-    "gemini-3-flash-preview",
-    "gemini-3.5-flash",
     "gemini-flash-latest"
 ];
-// Gemini "thinking" models spend part of the budget on reasoning tokens, so we
-// add headroom on top of the caller's requested answer length.
-const THINKING_TOKEN_HEADROOM = 1024;
-const GEMINI_REQUEST_TIMEOUT_MS = 20000;
-const GEMINI_TOTAL_BUDGET_MS = 35000;
+// Fast response timeouts so the UI never hangs
+const THINKING_TOKEN_HEADROOM = 256;
+const GEMINI_REQUEST_TIMEOUT_MS = 4000;
+const GEMINI_TOTAL_BUDGET_MS = 5000;
 
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));

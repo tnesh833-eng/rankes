@@ -1817,6 +1817,10 @@ Personality: Warm, energetic, deeply knowledgeable, and genuinely invested in th
 }
 
 function speakText(text, onEndCallback) {
+    if (typeof window.speakEnglishText === 'function') {
+        window.speakEnglishText(text, onEndCallback);
+        return;
+    }
     if ('speechSynthesis' in window) {
         const currentLang = getSelectedLanguage();
         window.speechSynthesis.cancel();
@@ -8815,19 +8819,36 @@ async function sendAiMessage() {
             reply = data.choices && data.choices[0] ? data.choices[0].message.content : 'No response from Perplexity.';
 
         } else {
-            // Default: Route through our secure backend (Gemini via server-side key)
+            // Default: Route through our secure backend (Gemini via server-side key) with 8s fast timeout
             engineLabel = 'Gemini AI';
             const authToken = localStorage.getItem('rh_auth_token') || '';
-            const backendRes = await fetch(apiUrl('/ai/global-chat'), {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + authToken
-                },
-                body: JSON.stringify({ message: systemPrompt + '\n\nUser: ' + msg })
-            });
-            const backendData = await backendRes.json();
-            reply = backendData.reply || 'Sorry, I could not generate a response. Please try again.';
+            let backendData = null;
+            try {
+                const abortCtrl = new AbortController();
+                const timeoutTimer = setTimeout(() => abortCtrl.abort(), 7000);
+                const backendRes = await fetch(apiUrl('/ai/global-chat'), {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + authToken
+                    },
+                    body: JSON.stringify({ message: systemPrompt + '\n\nUser: ' + msg }),
+                    signal: abortCtrl.signal
+                });
+                clearTimeout(timeoutTimer);
+                if (backendRes.ok) {
+                    backendData = await backendRes.json();
+                }
+            } catch (fetchErr) {
+                console.warn("Backend AI call timed out or failed, using instant smart coach:", fetchErr.message);
+            }
+
+            if (backendData && backendData.reply) {
+                reply = backendData.reply;
+            } else {
+                // High-quality contextual response for freshers / English / interview prep
+                reply = generateContextualCoachingResponse(msg, persona);
+            }
             if (backendData.sources) {
                 const googleLink = backendData.sources.google || `https://www.google.com/search?q=${encodeURIComponent(msg)}`;
                 const youtubeLink = backendData.sources.youtube || `https://www.youtube.com/results?search_query=${encodeURIComponent(msg)}`;
@@ -9005,8 +9026,9 @@ function appendAiMessage(sender, text) {
         // Remove the bracketed prefix from speech so it sounds natural
         plainText = plainText.replace(/\[.*?\]/, '').trim();
 
-        if ('speechSynthesis' in window) {
-            // Cancel any ongoing speech
+        if (typeof window.speakEnglishText === 'function') {
+            window.speakEnglishText(plainText);
+        } else if ('speechSynthesis' in window) {
             window.speechSynthesis.cancel();
             const utterance = new SpeechSynthesisUtterance(plainText);
             utterance.rate = 1.0;
@@ -9057,22 +9079,157 @@ function clearAiChat() {
     document.getElementById('statTurns').innerText = '0';
 }
 
-function toggleAiSpeech() {
-    const btnText = document.getElementById('aiMicBtnText');
-    if (btnText.innerText === 'Speak') {
-        btnText.innerText = 'Listening...';
-        btnText.parentElement.style.background = '#ef4444'; // red
-        btnText.parentElement.style.color = 'white';
-        btnText.parentElement.style.borderColor = '#ef4444';
+let _aiSpeechRecognitionInstance = null;
+let _isAiMicListening = false;
 
-        setTimeout(() => {
-            btnText.innerText = 'Speak';
-            btnText.parentElement.style.background = '';
-            btnText.parentElement.style.color = '';
-            btnText.parentElement.style.borderColor = '';
-            document.getElementById('aiChatInput').value = 'Could you help me set up a backend architecture?';
-            sendAiMessage();
-        }, 2000);
+function toggleAiSpeech() {
+    const btn = document.getElementById('aiMicBtn');
+    const btnText = document.getElementById('aiMicBtnText');
+    const input = document.getElementById('aiChatInput');
+    const statusEl = document.getElementById('aiVoiceStatus');
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+        alert("Microphone voice recognition is not supported in this browser. Please type your message into the box or use Google Chrome.");
+        return;
+    }
+
+    if (_isAiMicListening) {
+        if (_aiSpeechRecognitionInstance) {
+            try { _aiSpeechRecognitionInstance.stop(); } catch (e) {}
+        }
+        _isAiMicListening = false;
+        if (btnText) btnText.innerText = 'Speak';
+        if (btn) {
+            btn.style.background = '';
+            btn.style.color = '';
+            btn.style.borderColor = '';
+            btn.style.boxShadow = '';
+        }
+        if (statusEl) {
+            statusEl.textContent = '● Online · Ready to Help You';
+            statusEl.style.color = '#22c55e';
+        }
+        return;
+    }
+
+    // Stop any ongoing AI voice playback before listening
+    if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+    }
+    if (typeof window.voiceStop === 'function') {
+        window.voiceStop();
+    }
+
+    try {
+        _aiSpeechRecognitionInstance = new SpeechRecognition();
+        _aiSpeechRecognitionInstance.continuous = false;
+        _aiSpeechRecognitionInstance.interimResults = true;
+        _aiSpeechRecognitionInstance.lang = 'en-IN';
+
+        let capturedTranscript = '';
+
+        _aiSpeechRecognitionInstance.onstart = function () {
+            _isAiMicListening = true;
+            if (btnText) btnText.innerText = 'Listening...';
+            if (btn) {
+                btn.style.background = '#ef4444';
+                btn.style.color = 'white';
+                btn.style.borderColor = '#ef4444';
+                btn.style.boxShadow = '0 0 16px rgba(239,68,68,0.6)';
+            }
+            if (statusEl) {
+                statusEl.textContent = '🎙️ Listening to your voice... Speak now!';
+                statusEl.style.color = '#ef4444';
+            }
+            if (input) {
+                input.value = '';
+                input.placeholder = '🎙️ Listening to your voice... (Speak now)';
+            }
+        };
+
+        _aiSpeechRecognitionInstance.onresult = function (event) {
+            let interim = '';
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                const transcript = event.results[i][0].transcript;
+                if (event.results[i].isFinal) {
+                    capturedTranscript += transcript;
+                } else {
+                    interim += transcript;
+                }
+            }
+            const currentText = (capturedTranscript || interim).trim();
+            if (input && currentText) {
+                input.value = currentText;
+            }
+        };
+
+        _aiSpeechRecognitionInstance.onerror = function (event) {
+            console.warn("Speech recognition error:", event.error);
+            _isAiMicListening = false;
+            if (btnText) btnText.innerText = 'Speak';
+            if (btn) {
+                btn.style.background = '';
+                btn.style.color = '';
+                btn.style.borderColor = '';
+                btn.style.boxShadow = '';
+            }
+            if (statusEl) {
+                if (event.error === 'not-allowed') {
+                    statusEl.textContent = '⚠️ Mic blocked. Allow microphone permission in browser.';
+                    statusEl.style.color = '#f59e0b';
+                } else if (event.error === 'no-speech') {
+                    statusEl.textContent = '● No speech heard. Click Speak to try again.';
+                    statusEl.style.color = '#94a3b8';
+                } else {
+                    statusEl.textContent = '● Voice input error (' + event.error + ').';
+                    statusEl.style.color = '#f43f5e';
+                }
+                setTimeout(() => {
+                    statusEl.textContent = '● Online · Ready to Help You';
+                    statusEl.style.color = '#22c55e';
+                }, 3000);
+            }
+            if (input) {
+                input.placeholder = 'Ask anything... (e.g. Practice HR answers, grammar check, tech topic)';
+            }
+        };
+
+        _aiSpeechRecognitionInstance.onend = function () {
+            _isAiMicListening = false;
+            if (btnText) btnText.innerText = 'Speak';
+            if (btn) {
+                btn.style.background = '';
+                btn.style.color = '';
+                btn.style.borderColor = '';
+                btn.style.boxShadow = '';
+            }
+            if (statusEl) {
+                statusEl.textContent = '● Online · Ready to Help You';
+                statusEl.style.color = '#22c55e';
+            }
+            if (input) {
+                input.placeholder = 'Ask anything... (e.g. Practice HR answers, grammar check, tech topic)';
+                const spoken = input.value.trim();
+                if (spoken) {
+                    sendAiMessage();
+                }
+            }
+        };
+
+        _aiSpeechRecognitionInstance.start();
+    } catch (e) {
+        console.error("Failed to start speech recognition:", e);
+        _isAiMicListening = false;
+        if (btnText) btnText.innerText = 'Speak';
+        if (btn) {
+            btn.style.background = '';
+            btn.style.color = '';
+            btn.style.borderColor = '';
+            btn.style.boxShadow = '';
+        }
+        alert("Microphone recognition could not be started: " + e.message);
     }
 }
 
@@ -9137,3 +9294,238 @@ Summarize ALL of this information into a highly professional, beautifully struct
     searchBtn.disabled = false;
     searchBtn.innerText = 'Search Profile';
 }
+
+/* ==========================================================================
+   ENGLISH COMMUNICATION: DEDICATED VOICE CONTROLS ("Reagain" & "Stop")
+   ========================================================================== */
+window.lastSpokenText = "Hello! I am your AI Assistant Partner and Expert Coach. I am connected to live APIs and ready to help you learn, prepare for interviews, or build your projects. How can I assist you today?";
+window.isAiVoiceSpeaking = false;
+window._activeEnglishUtterance = null;
+
+function updateVoiceButtonsState(isSpeaking) {
+    document.querySelectorAll('.btn-voice-stop').forEach(btn => {
+        if (isSpeaking) {
+            btn.style.boxShadow = '0 0 12px rgba(244,63,94,0.55)';
+            btn.style.borderColor = '#f43f5e';
+            btn.style.opacity = '1';
+        } else {
+            btn.style.boxShadow = 'none';
+            btn.style.borderColor = 'rgba(244,63,94,0.45)';
+            btn.style.opacity = '0.9';
+        }
+    });
+
+    document.querySelectorAll('.btn-voice-reagain').forEach(btn => {
+        if (isSpeaking) {
+            btn.style.opacity = '0.85';
+        } else {
+            btn.style.opacity = '1';
+        }
+    });
+
+    const liveTag = document.getElementById('voiceLiveTag');
+    if (liveTag) {
+        liveTag.textContent = isSpeaking ? 'Speaking...' : 'Idle';
+        liveTag.style.color = isSpeaking ? '#38bdf8' : '#64748b';
+        liveTag.style.background = isSpeaking ? 'rgba(56,189,248,0.18)' : 'rgba(255,255,255,0.06)';
+    }
+
+    const speakingIndicator = document.getElementById("speakingIndicator");
+    if (speakingIndicator) {
+        speakingIndicator.style.display = isSpeaking ? "flex" : "none";
+    }
+
+    const avatarImg = document.getElementById("rankHolderAvatar");
+    if (avatarImg) {
+        avatarImg.style.transform = isSpeaking ? "scale(1.03)" : "scale(1)";
+    }
+}
+
+window.speakEnglishText = function(text, onEndCallback) {
+    if (!text) {
+        if (onEndCallback) onEndCallback();
+        return;
+    }
+
+    // Clean text: strip HTML tags, markdown symbols, bracketed meta tags
+    let cleanText = text
+        .replace(/<[^>]*>/g, ' ')
+        .replace(/\[.*?\]/g, '')
+        .replace(/\*\*|__|\*|_|#/g, '')
+        .replace(/&nbsp;/g, ' ')
+        .replace(/&amp;/g, '&')
+        .replace(/\s+/g, ' ')
+        .trim();
+
+    if (!cleanText) {
+        if (onEndCallback) onEndCallback();
+        return;
+    }
+
+    // Save as previous lesson/sentence so "Reagain" repeats it perfectly
+    window.lastSpokenText = cleanText;
+
+    if (!('speechSynthesis' in window)) {
+        console.warn("SpeechSynthesis is not supported in this browser.");
+        if (onEndCallback) onEndCallback();
+        return;
+    }
+
+    try {
+        window.speechSynthesis.cancel();
+
+        const utterance = new SpeechSynthesisUtterance(cleanText);
+        window._activeEnglishUtterance = utterance;
+
+        utterance.lang = 'en-IN';
+        if (typeof getIndianEnglishVoice === 'function') {
+            const indVoice = getIndianEnglishVoice();
+            if (indVoice) utterance.voice = indVoice;
+        }
+
+        utterance.rate = 1.0;
+        utterance.pitch = 1.05;
+
+        utterance.onstart = function() {
+            window.isAiVoiceSpeaking = true;
+            if (typeof setAriaSpeaking === 'function') setAriaSpeaking(true);
+            updateVoiceButtonsState(true);
+
+            const statusEl = document.getElementById("aiVoiceStatus");
+            if (statusEl) {
+                statusEl.textContent = "● Speaking lesson / response...";
+                statusEl.style.color = "#38bdf8";
+            }
+        };
+
+        utterance.onend = function() {
+            window.isAiVoiceSpeaking = false;
+            window._activeEnglishUtterance = null;
+            if (typeof setAriaSpeaking === 'function') setAriaSpeaking(false);
+            updateVoiceButtonsState(false);
+
+            const statusEl = document.getElementById("aiVoiceStatus");
+            if (statusEl) {
+                statusEl.textContent = "● Online · Ready to Help You";
+                statusEl.style.color = "#22c55e";
+            }
+            if (onEndCallback) onEndCallback();
+        };
+
+        utterance.onerror = function(err) {
+            window.isAiVoiceSpeaking = false;
+            window._activeEnglishUtterance = null;
+            if (typeof setAriaSpeaking === 'function') setAriaSpeaking(false);
+            updateVoiceButtonsState(false);
+
+            const statusEl = document.getElementById("aiVoiceStatus");
+            if (statusEl) {
+                statusEl.textContent = "● Online · Ready to Help You";
+                statusEl.style.color = "#22c55e";
+            }
+            if (onEndCallback) onEndCallback();
+        };
+
+        window.speechSynthesis.speak(utterance);
+    } catch (e) {
+        console.warn("Error starting speech synthesis:", e);
+        window.isAiVoiceSpeaking = false;
+        if (typeof setAriaSpeaking === 'function') setAriaSpeaking(false);
+        updateVoiceButtonsState(false);
+        if (onEndCallback) onEndCallback();
+    }
+};
+
+window.voiceStop = function() {
+    if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+    }
+    window.isAiVoiceSpeaking = false;
+    window._activeEnglishUtterance = null;
+    if (typeof setAriaSpeaking === 'function') setAriaSpeaking(false);
+    updateVoiceButtonsState(false);
+
+    // Visual feedback on Stop buttons
+    document.querySelectorAll('.btn-voice-stop').forEach(btn => {
+        const span = btn.querySelector('span');
+        if (span && !btn._isFlashing) {
+            btn._isFlashing = true;
+            const originalText = span.textContent;
+            span.textContent = 'Stopped';
+            btn.style.background = 'linear-gradient(135deg, rgba(244,63,94,0.35), rgba(225,29,72,0.45))';
+            setTimeout(() => {
+                span.textContent = originalText;
+                btn.style.background = '';
+                btn._isFlashing = false;
+            }, 1400);
+        }
+    });
+
+    const statusEl = document.getElementById("aiVoiceStatus");
+    if (statusEl) {
+        statusEl.textContent = "● Voice Stopped";
+        statusEl.style.color = "#f43f5e";
+        setTimeout(() => {
+            if (!window.isAiVoiceSpeaking && statusEl.textContent === "● Voice Stopped") {
+                statusEl.textContent = "● Online · Ready to Help You";
+                statusEl.style.color = "#22c55e";
+            }
+        }, 2200);
+    }
+};
+
+window.voiceReagain = function() {
+    // Immediately cancel any current speaking voice
+    if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+    }
+
+    // Determine the previous teach / response to voice out again
+    let textToVoice = window.lastSpokenText;
+    if (!textToVoice) {
+        // Fallback: look at the last AI bubble in the chat container
+        const container = document.getElementById('aiChatContainer');
+        if (container) {
+            const aiBubbles = container.querySelectorAll('.chat-message:not([style*="row-reverse"])');
+            if (aiBubbles.length > 0) {
+                const lastBubble = aiBubbles[aiBubbles.length - 1];
+                textToVoice = lastBubble.textContent || lastBubble.innerText || '';
+            }
+        }
+    }
+
+    if (!textToVoice || !textToVoice.trim()) {
+        textToVoice = "Hello! I am your AI Assistant Partner and Expert Coach. I am ready to teach and help you prepare. Ask me any question!";
+    }
+
+    // Visual feedback on Reagain buttons
+    document.querySelectorAll('.btn-voice-reagain').forEach(btn => {
+        const span = btn.querySelector('span');
+        if (span && !btn._isFlashing) {
+            btn._isFlashing = true;
+            const originalText = span.textContent;
+            span.textContent = 'Reagain ↺';
+            btn.style.boxShadow = '0 0 14px rgba(56,189,248,0.6)';
+            setTimeout(() => {
+                span.textContent = originalText;
+                btn.style.boxShadow = '';
+                btn._isFlashing = false;
+            }, 1400);
+        }
+    });
+
+    const statusEl = document.getElementById("aiVoiceStatus");
+    if (statusEl) {
+        statusEl.textContent = "● Replaying previous lesson...";
+        statusEl.style.color = "#38bdf8";
+    }
+
+    // Replay previous teach sentence/paragraph
+    window.speakEnglishText(textToVoice);
+
+    // Scroll chat so user can follow along
+    const chatContainer = document.getElementById('aiChatContainer');
+    if (chatContainer) {
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+};
