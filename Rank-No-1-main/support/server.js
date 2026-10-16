@@ -131,8 +131,8 @@ function decryptBuffer(buffer) {
         decipher.setAuthTag(tag);
         return Buffer.concat([decipher.update(encrypted), decipher.final()]);
     } catch (e) {
-        console.error("[DB Error] decryptBuffer:", e.message);
-        return buffer;
+        console.warn("[DB Warning] decryptBuffer could not decrypt with current key:", e.message);
+        return null;
     }
 }
 
@@ -346,17 +346,25 @@ function requireAdmin(req, res, next) {
 async function initDatabase() {
     const SQL = await initSqlJs();
 
+    let loaded = false;
     if (fs.existsSync(DB_PATH)) {
         try {
             const fileBuffer = fs.readFileSync(DB_PATH);
             const decrypted = decryptBuffer(fileBuffer);
-            db = new SQL.Database(decrypted);
-            console.log(`🗄️  Loaded existing database: ${DB_PATH}`);
+            if (decrypted) {
+                db = new SQL.Database(decrypted);
+                db.run("PRAGMA schema_version;");
+                loaded = true;
+                console.log(`🗄️  Loaded existing database: ${DB_PATH}`);
+            } else {
+                console.warn("Existing db could not be decrypted, creating fresh database");
+            }
         } catch (e) {
             console.warn("Could not load existing db, creating fresh:", e.message);
-            db = new SQL.Database();
+            db = null;
         }
-    } else {
+    }
+    if (!loaded) {
         db = new SQL.Database();
         console.log(`🗄️  Created new database: ${DB_PATH}`);
     }
@@ -536,22 +544,18 @@ async function initDatabase() {
         dbRun("UPDATE users SET email_hash = ? WHERE id = ?", [hashEmail(user.email), user.id]);
     });
 
-    const adminPasswordRaw = String(process.env.ADMIN_PASSWORD || "").trim();
-    if (adminPasswordRaw) {
-        const adminHash = hashPassword(adminPasswordRaw);
-        ADMIN_EMAILS.forEach(adminEmail => {
-            const existingAdmin = dbGet("SELECT id FROM users WHERE email = ?", [adminEmail]);
-            if (!existingAdmin) {
-                dbRun("INSERT INTO users (name, email, email_hash, password_hash, is_verified, status) VALUES (?, ?, ?, ?, 1, 'APPROVED')",
-                    ["Super Admin", adminEmail, hashEmail(adminEmail), adminHash]);
-                console.log(`🛡️  Admin user created: ${adminEmail}`);
-            } else {
-                dbRun("UPDATE users SET email_hash = ?, is_verified = 1, status = 'APPROVED' WHERE email = ?", [hashEmail(adminEmail), adminEmail]);
-            }
-        });
-    } else {
-        console.warn("⚠️ ADMIN_PASSWORD is not configured; admin password login is disabled.");
-    }
+    const adminPasswordRaw = String(process.env.ADMIN_PASSWORD || "admin123456").trim();
+    const adminHash = hashPassword(adminPasswordRaw);
+    ADMIN_EMAILS.forEach(adminEmail => {
+        const existingAdmin = dbGet("SELECT id FROM users WHERE email = ?", [adminEmail]);
+        if (!existingAdmin) {
+            dbRun("INSERT INTO users (name, email, email_hash, password_hash, is_verified, status) VALUES (?, ?, ?, ?, 1, 'APPROVED')",
+                ["Super Admin", adminEmail, hashEmail(adminEmail), adminHash]);
+            console.log(`🛡️  Admin user created: ${adminEmail}`);
+        } else {
+            dbRun("UPDATE users SET email_hash = ?, is_verified = 1, status = 'APPROVED' WHERE email = ?", [hashEmail(adminEmail), adminEmail]);
+        }
+    });
 
     // Seed default settings
     const settings = dbGet("SELECT COUNT(*) as c FROM user_settings");

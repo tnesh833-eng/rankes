@@ -2,11 +2,11 @@ const _API = (window.location.protocol === "file:" || ((window.location.hostname
 function _getToken(){return localStorage.getItem("rh_auth_token")||"";}
 window.toggleTheme=function(){document.body.classList.toggle("light-theme");var icon=document.getElementById("themeIcon")||document.getElementById("tIcon");var label=document.getElementById("themeLabel")||document.getElementById("tLabel");var isLight=document.body.classList.contains("light-theme");if(icon)icon.innerHTML=isLight?"&#127776;":"&#9728;";if(label)label.textContent=isLight?"Dark":"Light";localStorage.setItem("rh_theme",isLight?"light":"dark");};
 window.toggleNotifPanel=function(){var np=document.getElementById("notifPanel");var pp=document.getElementById("profilePanel");var sp=document.getElementById("settingsPanel");if(!np)return;if(pp)pp.style.display="none";if(sp)sp.style.display="none";var open=np.style.display==="none"||np.style.display==="";np.style.display=open?"block":"none";if(open)_loadNotifs();};
-async function _loadNotifs(){var c=document.getElementById("notifList");if(!c)return;c.innerHTML="<div style='padding:10px;text-align:center;font-size:0.8rem;color:#64748b;'>Loading...</div>";try{var r=await fetch(_API+"/notifications");var data=await r.json();var list=(data.notifications&&data.notifications.length)?data.notifications:[{id:1,title:"Google India Hiring",message:"SWE-1 openings posted this morning.",category:"job",tag:"Hiring Active"},{id:2,title:"TCS NQT Approaching",message:"Registration closes soon.",category:"job",tag:"Deadline Soon"},{id:3,title:"Zoho Off-Campus",message:"Interviews for Dev & QA roles.",category:"internship",tag:"Urgent Hiring"}];var icons={job:"💼",internship:"🎓",system:"⚙️",general:"🔔"};var colors={job:"#10b981",internship:"#6366f1",system:"#f59e0b"};c.innerHTML=list.map(function(n){var tc=colors[n.category]||"#10b981";return'<div class="notif-card" data-category="'+(n.category||"job")+'" style="padding:12px;border-radius:10px;background:rgba(99,102,241,0.06);border:1px solid rgba(99,102,241,0.18);margin-bottom:8px;"><div style="font-size:0.85rem;font-weight:700;color:#f0f4ff;">'+(icons[n.category]||"🔔")+" "+n.title+'</div><span style="display:inline-block;font-size:0.68rem;font-weight:700;padding:2px 8px;border-radius:10px;margin-bottom:6px;background:rgba(16,185,129,0.15);color:'+tc+';">'+(n.tag||(n.category||"").toUpperCase())+'</span><div style="font-size:0.78rem;color:#94a3b8;">'+n.message+"</div></div>";}).join("");var badge=document.getElementById("notifBadge");if(badge&&list.length>0)badge.style.display="block";}catch(e){c.innerHTML="<div style='padding:10px;font-size:0.8rem;color:#f59e0b;'>Could not load notifications.</div>";}}
+async function _loadNotifs(){var c=document.getElementById("notifList");if(!c)return;c.innerHTML="<div style='padding:10px;text-align:center;font-size:0.8rem;color:#64748b;'>Loading...</div>";try{var r=await fetch(_API+"/notifications");var data=await r.json();var list=(data.notifications&&data.notifications.length)?data.notifications:[{id:1,title:"Google India Hiring",message:"SWE-1 openings posted this morning.",category:"job",tag:"Hiring Active"},{id:2,title:"TCS NQT Approaching",message:"Registration closes soon.",category:"job",tag:"Deadline Soon"},{id:3,title:"Zoho Off-Campus",message:"Interviews for Dev & QA roles.",category:"internship",tag:"Urgent Hiring"}];var icons={job:"💼",internship:"🎓",system:"⚙️",general:"🔔"};var colors={job:"#10b981",internship:"#cfa354",system:"#e8c682"};c.innerHTML=list.map(function(n){var tc=colors[n.category]||"#10b981";return'<div class="notif-card" data-category="'+(n.category||"job")+'" style="padding:12px;border-radius:10px;background:rgba(207,163,84,0.08);border:1px solid rgba(229,191,125,0.22);margin-bottom:8px;"><div style="font-size:0.85rem;font-weight:700;color:#f8fafc;">'+(icons[n.category]||"🔔")+" "+n.title+'</div><span style="display:inline-block;font-size:0.68rem;font-weight:700;padding:2px 8px;border-radius:10px;margin-bottom:6px;background:rgba(207,163,84,0.15);color:'+tc+';">'+(n.tag||(n.category||"").toUpperCase())+'</span><div style="font-size:0.78rem;color:#94a3b8;">'+n.message+"</div></div>";}).join("");var badge=document.getElementById("notifBadge");if(badge&&list.length>0)badge.style.display="block";}catch(e){c.innerHTML="<div style='padding:10px;font-size:0.8rem;color:#f59e0b;'>Could not load notifications.</div>";}}
 window.clearNotifications=async function(){try{await fetch(_API+"/notifications/clear",{method:"POST"});}catch(e){}var nl=document.getElementById("notifList");if(nl)nl.innerHTML="<div style='font-size:0.8rem;color:#64748b;padding:10px;text-align:center;'>No active notifications.</div>";var badge=document.getElementById("notifBadge");if(badge)badge.style.display="none";};
-window.filterNotifs=function(ft){var ba=document.getElementById("notifFilterAll");var bj=document.getElementById("notifFilterJob");var bi=document.getElementById("notifFilterIntern");[ba,bj,bi].forEach(function(b){if(b){b.style.background="rgba(99,102,241,0.05)";b.style.borderColor="rgba(99,102,241,0.1)";b.style.color="#64748b";}});function act(b){if(b){b.style.background="rgba(99,102,241,0.18)";b.style.borderColor="rgba(99,102,241,0.3)";b.style.color="#6366f1";}}document.querySelectorAll("#notifList .notif-card").forEach(function(c){var cat=c.dataset.category||"job";if(ft==="all"){c.style.display="block";act(ba);}else if(ft==="job"){c.style.display=cat.includes("job")?"block":"none";act(bj);}else if(ft==="internship"){c.style.display=cat.includes("intern")?"block":"none";act(bi);}});};
+window.filterNotifs=function(ft){var ba=document.getElementById("notifFilterAll");var bj=document.getElementById("notifFilterJob");var bi=document.getElementById("notifFilterIntern");[ba,bj,bi].forEach(function(b){if(b){b.style.background="rgba(207,163,84,0.06)";b.style.borderColor="rgba(229,191,125,0.15)";b.style.color="#94a3b8";}});function act(b){if(b){b.style.background="rgba(207,163,84,0.22)";b.style.borderColor="rgba(232,198,130,0.45)";b.style.color="#e8c682";}}document.querySelectorAll("#notifList .notif-card").forEach(function(c){var cat=c.dataset.category||"job";if(ft==="all"){c.style.display="block";act(ba);}else if(ft==="job"){c.style.display=cat.includes("job")?"block":"none";act(bj);}else if(ft==="internship"){c.style.display=cat.includes("intern")?"block":"none";act(bi);}});};
 window.toggleSettingsPanel=function(){var p=document.getElementById("settingsPanel");var pp=document.getElementById("profilePanel");var np=document.getElementById("notifPanel");if(!p)return;if(pp)pp.style.display="none";if(np)np.style.display="none";var open=p.style.display==="none"||p.style.display==="";p.style.display=open?"block":"none";if(open){_loadSettingsNotifs();_checkAdmin();_loadSettingsProfile();}};
-async function _loadSettingsNotifs(){var c=document.getElementById("settingsNotifList");if(!c)return;try{var tok=_getToken();var opts=tok?{headers:{Authorization:"Bearer "+tok}}:{};var r=await fetch(_API+"/notifications",opts);var data=await r.json();var notifs=(data.notifications||[]).slice(0,5);if(!notifs.length){c.innerHTML="<span style='font-size:0.78rem;color:#64748b;'>No new alerts.</span>";return;}var icons={job:"💼",system:"⚙️",general:"🔔",internship:"🎓"};c.innerHTML=notifs.map(function(n){return'<div style="background:rgba(99,102,241,0.06);border:1px solid rgba(99,102,241,0.15);border-radius:8px;padding:8px 10px;"><div style="font-size:0.78rem;font-weight:700;color:#f0f4ff;margin-bottom:2px;">'+(icons[n.category]||"🔔")+" "+n.title+'</div><div style="font-size:0.72rem;color:#64748b;">'+n.message+"</div></div>";}).join("");}catch(e){c.innerHTML="<span style='font-size:0.78rem;color:#64748b;'>Could not load notifications.</span>";}}
+async function _loadSettingsNotifs(){var c=document.getElementById("settingsNotifList");if(!c)return;try{var tok=_getToken();var opts=tok?{headers:{Authorization:"Bearer "+tok}}:{};var r=await fetch(_API+"/notifications",opts);var data=await r.json();var notifs=(data.notifications||[]).slice(0,5);if(!notifs.length){c.innerHTML="<span style='font-size:0.78rem;color:#64748b;'>No new alerts.</span>";return;}var icons={job:"💼",system:"⚙️",general:"🔔",internship:"🎓"};c.innerHTML=notifs.map(function(n){return'<div style="background:rgba(207,163,84,0.08);border:1px solid rgba(229,191,125,0.2);border-radius:8px;padding:8px 10px;"><div style="font-size:0.78rem;font-weight:700;color:#f8fafc;margin-bottom:2px;">'+(icons[n.category]||"🔔")+" "+n.title+'</div><div style="font-size:0.72rem;color:#94a3b8;">'+n.message+"</div></div>";}).join("");}catch(e){c.innerHTML="<span style='font-size:0.78rem;color:#64748b;'>Could not load notifications.</span>";}}
 window.loadSettingsNotifications=_loadSettingsNotifs;
 async function _checkAdmin(){var s=document.getElementById("settingsAdminSection");if(!s)return;var tok=_getToken();if(!tok){s.style.display="none";return;}try{var r=await fetch(_API+"/auth/is-admin",{headers:{Authorization:"Bearer "+tok}});s.style.display=r.ok?"block":"none";}catch(e){s.style.display="none";}}
 window.toggleProfilePanel=function(){var p=document.getElementById("profilePanel");var sp=document.getElementById("settingsPanel");var np=document.getElementById("notifPanel");if(!p)return;if(sp)sp.style.display="none";if(np)np.style.display="none";var open=p.style.display==="none"||p.style.display==="";p.style.display=open?"block":"none";};
@@ -45,23 +45,23 @@ window.showAdminAuthModal = function() {
 
     var modal = document.createElement("div");
     modal.id = "rhAdminAuthModal";
-    modal.style.cssText = "position:fixed;inset:0;background:rgba(10,14,35,0.85);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:999999;display:flex;align-items:center;justify-content:center;padding:20px;";
+    modal.style.cssText = "position:fixed;inset:0;background:rgba(9,11,20,0.85);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);z-index:999999;display:flex;align-items:center;justify-content:center;padding:20px;";
 
     modal.innerHTML = `
-        <div style="background:#131b35;border:1px solid rgba(99,102,241,0.4);border-radius:20px;max-width:440px;width:100%;padding:28px 24px;box-shadow:0 24px 64px rgba(0,0,0,0.6);color:#f0f4ff;font-family:system-ui,-apple-system,sans-serif;position:relative;animation:rhAdminFadeIn 0.25s ease-out;">
-            <button onclick="closeAdminAuthModal()" style="position:absolute;top:16px;right:16px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:#94a3b8;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all 0.2s;" onmouseover="this.style.color='#fff';this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.color='#94a3b8';this.style.background='rgba(255,255,255,0.08)'">✕</button>
+        <div style="background:rgba(18,22,38,0.96);border:1px solid rgba(229,191,125,0.35);border-radius:20px;max-width:440px;width:100%;padding:28px 24px;box-shadow:0 24px 64px rgba(0,0,0,0.7), 0 0 35px rgba(207,163,84,0.15);color:#f8fafc;font-family:system-ui,-apple-system,sans-serif;position:relative;animation:rhAdminFadeIn 0.25s ease-out;">
+            <button onclick="closeAdminAuthModal()" style="position:absolute;top:16px;right:16px;background:rgba(255,255,255,0.08);border:1px solid rgba(229,191,125,0.2);color:#94a3b8;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all 0.2s;" onmouseover="this.style.color='#fff';this.style.background='rgba(207,163,84,0.2)'" onmouseout="this.style.color='#94a3b8';this.style.background='rgba(255,255,255,0.08)'">✕</button>
             
             <div style="text-align:center;margin-bottom:20px;">
-                <div style="width:56px;height:56px;margin:0 auto 12px;background:linear-gradient(135deg,#6366f1,#818cf8);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:28px;box-shadow:0 8px 24px rgba(99,102,241,0.4);">🛡️</div>
-                <h3 style="margin:0 0 6px;font-size:1.3rem;font-weight:800;letter-spacing:-0.02em;color:#fff;">Admin Console Access</h3>
-                <p style="margin:0;font-size:0.84rem;color:#94a3b8;">Super Administrator Authentication for <strong style="color:#a5b4fc;">tnesh833@gmail.com</strong></p>
+                <div style="width:56px;height:56px;margin:0 auto 12px;background:linear-gradient(135deg,#e8c682,#cfa354,#ba8b39);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:28px;box-shadow:0 8px 24px rgba(207,163,84,0.4);">🛡️</div>
+                <h3 style="margin:0 0 6px;font-size:1.3rem;font-weight:800;letter-spacing:-0.02em;background:linear-gradient(135deg,#ffffff 20%,#f7e6c5 60%,#cfa354 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Admin Console Access</h3>
+                <p style="margin:0;font-size:0.84rem;color:#94a3b8;">Super Administrator Authentication for <strong style="color:#e8c682;">tnesh833@gmail.com</strong></p>
             </div>
 
             <div id="rhAdminAuthError" style="display:none;background:rgba(244,63,94,0.15);border:1px solid rgba(244,63,94,0.35);color:#fda4af;padding:10px 14px;border-radius:10px;font-size:0.82rem;font-weight:600;margin-bottom:16px;text-align:center;"></div>
             <div id="rhAdminAuthSuccess" style="display:none;background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.35);color:#6ee7b7;padding:10px 14px;border-radius:10px;font-size:0.82rem;font-weight:600;margin-bottom:16px;text-align:center;"></div>
 
-            <div style="display:flex;gap:6px;background:rgba(0,0,0,0.25);padding:4px;border-radius:12px;margin-bottom:18px;">
-                <button id="rhAdminTabPassword" onclick="switchAdminAuthTab('password')" style="flex:1;padding:8px;border:none;border-radius:8px;font-size:0.8rem;font-weight:700;cursor:pointer;background:linear-gradient(135deg,#6366f1,#818cf8);color:#fff;transition:all 0.2s;">🔑 Master Password</button>
+            <div style="display:flex;gap:6px;background:rgba(0,0,0,0.3);padding:4px;border-radius:12px;margin-bottom:18px;">
+                <button id="rhAdminTabPassword" onclick="switchAdminAuthTab('password')" style="flex:1;padding:8px;border:none;border-radius:8px;font-size:0.8rem;font-weight:700;cursor:pointer;background:linear-gradient(135deg,#e8c682,#cfa354,#ba8b39);color:#fff;transition:all 0.2s;">🔑 Master Password</button>
                 <button id="rhAdminTabOtp" onclick="switchAdminAuthTab('otp')" style="flex:1;padding:8px;border:none;border-radius:8px;font-size:0.8rem;font-weight:700;cursor:pointer;background:transparent;color:#94a3b8;transition:all 0.2s;">📧 Email Code (OTP)</button>
             </div>
 
@@ -71,13 +71,13 @@ window.showAdminAuthModal = function() {
                     <label style="display:block;font-size:0.75rem;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">Admin Master Password</label>
                     <div style="position:relative;">
                         <input type="password" id="rhAdminPasswordInput" placeholder="Enter Admin Master Password" required
-                            style="width:100%;box-sizing:border-box;padding:12px 42px 12px 14px;background:rgba(255,255,255,0.06);border:1px solid rgba(99,102,241,0.3);border-radius:10px;color:#fff;font-size:0.9rem;outline:none;transition:border-color 0.2s;"
-                            onfocus="this.style.borderColor='#818cf8'" onblur="this.style.borderColor='rgba(99,102,241,0.3)'">
+                            style="width:100%;box-sizing:border-box;padding:12px 42px 12px 14px;background:rgba(255,255,255,0.06);border:1px solid rgba(229,191,125,0.25);border-radius:10px;color:#fff;font-size:0.9rem;outline:none;transition:border-color 0.2s;"
+                            onfocus="this.style.borderColor='#e8c682'" onblur="this.style.borderColor='rgba(229,191,125,0.25)'">
                         <button type="button" onclick="toggleAdminPasswordVis()" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#94a3b8;font-size:16px;">👁️</button>
                     </div>
                 </div>
                 <button type="submit" id="rhAdminPasswordSubmitBtn"
-                    style="width:100%;padding:12px;background:linear-gradient(135deg,#6366f1,#818cf8);color:#fff;font-weight:700;font-size:0.9rem;border:none;border-radius:12px;cursor:pointer;box-shadow:0 4px 18px rgba(99,102,241,0.4);transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:8px;"
+                    style="width:100%;padding:12px;background:linear-gradient(135deg,#e8c682,#cfa354,#ba8b39);color:#fff;font-weight:700;font-size:0.9rem;border:none;border-radius:12px;cursor:pointer;box-shadow:0 4px 18px rgba(207,163,84,0.4);transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:8px;"
                     onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform=''">
                     <span>Unlock Admin Panel →</span>
                 </button>
@@ -86,21 +86,21 @@ window.showAdminAuthModal = function() {
             <!-- TAB 2: EMAIL OTP -->
             <div id="rhAdminOtpContainer" style="display:none;flex-direction:column;gap:14px;">
                 <div>
-                    <p style="margin:0 0 10px;font-size:0.8rem;color:#94a3b8;line-height:1.5;">Click below to send a 6-digit verification code to <strong style="color:#a5b4fc;">tnesh833@gmail.com</strong>.</p>
+                    <p style="margin:0 0 10px;font-size:0.8rem;color:#94a3b8;line-height:1.5;">Click below to send a 6-digit verification code to <strong style="color:#e8c682;">tnesh833@gmail.com</strong>.</p>
                     <button type="button" id="rhAdminRequestOtpBtn" onclick="requestAdminEmailOtp()"
-                        style="width:100%;padding:10px;background:rgba(99,102,241,0.15);border:1px solid rgba(99,102,241,0.35);border-radius:10px;color:#a5b4fc;font-weight:700;font-size:0.82rem;cursor:pointer;transition:all 0.2s;"
-                        onmouseover="this.style.background='rgba(99,102,241,0.25)'" onmouseout="this.style.background='rgba(99,102,241,0.15)'">
+                        style="width:100%;padding:10px;background:rgba(207,163,84,0.15);border:1px solid rgba(229,191,125,0.35);border-radius:10px;color:#e8c682;font-weight:700;font-size:0.82rem;cursor:pointer;transition:all 0.2s;"
+                        onmouseover="this.style.background='rgba(207,163,84,0.25)'" onmouseout="this.style.background='rgba(207,163,84,0.15)'">
                         📧 Send Verification Code
                     </button>
                 </div>
                 <div>
                     <label style="display:block;font-size:0.75rem;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">6-Digit Code</label>
                     <input type="text" id="rhAdminOtpInput" maxlength="6" placeholder="• • • • • •"
-                        style="width:100%;box-sizing:border-box;padding:12px;background:rgba(255,255,255,0.06);border:1px solid rgba(99,102,241,0.3);border-radius:10px;color:#fff;font-size:1.1rem;font-weight:700;letter-spacing:6px;text-align:center;outline:none;"
-                        onfocus="this.style.borderColor='#818cf8'" onblur="this.style.borderColor='rgba(99,102,241,0.3)'">
+                        style="width:100%;box-sizing:border-box;padding:12px;background:rgba(255,255,255,0.06);border:1px solid rgba(229,191,125,0.25);border-radius:10px;color:#fff;font-size:1.1rem;font-weight:700;letter-spacing:6px;text-align:center;outline:none;"
+                        onfocus="this.style.borderColor='#e8c682'" onblur="this.style.borderColor='rgba(229,191,125,0.25)'">
                 </div>
                 <button type="button" id="rhAdminOtpSubmitBtn" onclick="submitAdminOtpLogin()"
-                    style="width:100%;padding:12px;background:linear-gradient(135deg,#6366f1,#818cf8);color:#fff;font-weight:700;font-size:0.9rem;border:none;border-radius:12px;cursor:pointer;box-shadow:0 4px 18px rgba(99,102,241,0.4);transition:all 0.2s;"
+                    style="width:100%;padding:12px;background:linear-gradient(135deg,#e8c682,#cfa354,#ba8b39);color:#fff;font-weight:700;font-size:0.9rem;border:none;border-radius:12px;cursor:pointer;box-shadow:0 4px 18px rgba(207,163,84,0.4);transition:all 0.2s;"
                     onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform=''">
                     Verify Code &amp; Unlock →
                 </button>
@@ -133,14 +133,14 @@ window.switchAdminAuthTab = function(tab) {
     if (succ) succ.style.display = "none";
 
     if (tab === "password") {
-        if (tabPwd) { tabPwd.style.background = "linear-gradient(135deg,#6366f1,#818cf8)"; tabPwd.style.color = "#fff"; }
+        if (tabPwd) { tabPwd.style.background = "linear-gradient(135deg,#e8c682,#cfa354,#ba8b39)"; tabPwd.style.color = "#fff"; }
         if (tabOtp) { tabOtp.style.background = "transparent"; tabOtp.style.color = "#94a3b8"; }
         if (formPwd) formPwd.style.display = "flex";
         if (formOtp) formOtp.style.display = "none";
         var inp = document.getElementById("rhAdminPasswordInput");
         if (inp) inp.focus();
     } else {
-        if (tabOtp) { tabOtp.style.background = "linear-gradient(135deg,#6366f1,#818cf8)"; tabOtp.style.color = "#fff"; }
+        if (tabOtp) { tabOtp.style.background = "linear-gradient(135deg,#e8c682,#cfa354,#ba8b39)"; tabOtp.style.color = "#fff"; }
         if (tabPwd) { tabPwd.style.background = "transparent"; tabPwd.style.color = "#94a3b8"; }
         if (formPwd) formPwd.style.display = "none";
         if (formOtp) formOtp.style.display = "flex";
@@ -379,33 +379,33 @@ window.openFeedbackModal = function() {
 
     var div = document.createElement("div");
     div.id = "rhFeedbackModal";
-    div.style.cssText = "position:fixed; inset:0; background:rgba(0,0,0,0.75); backdrop-filter:blur(8px); z-index:99999; display:flex; align-items:center; justify-content:center; padding:16px;";
+    div.style.cssText = "position:fixed; inset:0; background:rgba(9,11,20,0.85); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); z-index:99999; display:flex; align-items:center; justify-content:center; padding:16px;";
     div.innerHTML = `
-        <div style="background:var(--bg-surface, #0d1130); border:1px solid rgba(99,102,241,0.3); border-radius:18px; padding:28px; width:100%; max-width:440px; box-shadow:0 20px 60px rgba(0,0,0,0.6); position:relative; color:var(--text-primary, #fff);">
-            <button onclick="closeFeedbackModal()" style="position:absolute; top:16px; right:16px; background:none; border:none; color:var(--text-muted, #94a3b8); font-size:1.3rem; cursor:pointer;">✕</button>
+        <div style="background:var(--bg-surface, rgba(18,22,38,0.96)); border:1px solid rgba(229,191,125,0.35); border-radius:20px; padding:28px; width:100%; max-width:440px; box-shadow:0 24px 64px rgba(0,0,0,0.7), 0 0 35px rgba(207,163,84,0.15); position:relative; color:var(--text-primary, #f8fafc);">
+            <button onclick="closeFeedbackModal()" style="position:absolute; top:16px; right:16px; background:rgba(255,255,255,0.08); border:1px solid rgba(229,191,125,0.2); border-radius:50%; width:32px; height:32px; display:flex; align-items:center; justify-content:center; color:var(--text-muted, #94a3b8); font-size:1rem; cursor:pointer; transition:all 0.2s;" onmouseover="this.style.color='#fff';this.style.background='rgba(207,163,84,0.2)'" onmouseout="this.style.color='#94a3b8';this.style.background='rgba(255,255,255,0.08)'">✕</button>
             <div style="display:flex; align-items:center; gap:10px; margin-bottom:6px;">
                 <span style="font-size:1.5rem;">💬</span>
-                <h3 style="margin:0; font-size:1.2rem; background:linear-gradient(135deg,#a5b4fc,#818cf8); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">Share Your Feedback</h3>
+                <h3 style="margin:0; font-size:1.2rem; background:linear-gradient(135deg,#ffffff 20%,#f7e6c5 60%,#cfa354 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">Share Your Feedback</h3>
             </div>
             <p style="font-size:0.8rem; color:var(--text-secondary, #94a3b8); margin-bottom:18px; margin-top:4px;">
-                Your feedback will automatically be emailed directly to the Admin at <strong style="color:var(--brand-primary, #818cf8);">tnesh833@gmail.com</strong>.
+                Your feedback will automatically be emailed directly to the Admin at <strong style="color:var(--brand-primary, #e8c682);">tnesh833@gmail.com</strong>.
             </p>
             <form id="rhFeedbackForm" onsubmit="submitRhFeedback(event)">
                 <div id="rhFeedbackStatus" style="display:none; padding:10px; border-radius:8px; font-size:0.82rem; margin-bottom:12px;"></div>
                 
                 <div style="margin-bottom:12px;">
                     <label style="display:block; font-size:0.75rem; font-weight:700; text-transform:uppercase; margin-bottom:4px; color:var(--text-secondary, #94a3b8);">Your Name</label>
-                    <input type="text" id="fbName" value="${defaultName}" placeholder="e.g. Alex Smith" required style="width:100%; padding:10px; border-radius:8px; border:1px solid rgba(99,102,241,0.25); background:var(--bg-body, #05081a); color:var(--text-primary, #fff); font-size:0.9rem; box-sizing:border-box;">
+                    <input type="text" id="fbName" value="${defaultName}" placeholder="e.g. Alex Smith" required style="width:100%; padding:10px; border-radius:8px; border:1px solid rgba(229,191,125,0.25); background:rgba(255,255,255,0.05); color:var(--text-primary, #fff); font-size:0.9rem; box-sizing:border-box;">
                 </div>
                 
                 <div style="margin-bottom:12px;">
                     <label style="display:block; font-size:0.75rem; font-weight:700; text-transform:uppercase; margin-bottom:4px; color:var(--text-secondary, #94a3b8);">Your Email</label>
-                    <input type="email" id="fbEmail" value="${defaultEmail}" placeholder="alex@example.com" required style="width:100%; padding:10px; border-radius:8px; border:1px solid rgba(99,102,241,0.25); background:var(--bg-body, #05081a); color:var(--text-primary, #fff); font-size:0.9rem; box-sizing:border-box;">
+                    <input type="email" id="fbEmail" value="${defaultEmail}" placeholder="alex@example.com" required style="width:100%; padding:10px; border-radius:8px; border:1px solid rgba(229,191,125,0.25); background:rgba(255,255,255,0.05); color:var(--text-primary, #fff); font-size:0.9rem; box-sizing:border-box;">
                 </div>
 
                 <div style="margin-bottom:12px;">
                     <label style="display:block; font-size:0.75rem; font-weight:700; text-transform:uppercase; margin-bottom:4px; color:var(--text-secondary, #94a3b8);">Rating</label>
-                    <select id="fbRating" style="width:100%; padding:10px; border-radius:8px; border:1px solid rgba(99,102,241,0.25); background:var(--bg-body, #05081a); color:var(--text-primary, #fff); font-size:0.9rem; box-sizing:border-box;">
+                    <select id="fbRating" style="width:100%; padding:10px; border-radius:8px; border:1px solid rgba(229,191,125,0.25); background:rgba(20,25,45,0.9); color:var(--text-primary, #fff); font-size:0.9rem; box-sizing:border-box;">
                         <option value="5">⭐⭐⭐⭐⭐ 5 - Excellent</option>
                         <option value="4">⭐⭐⭐⭐ 4 - Good</option>
                         <option value="3">⭐⭐⭐ 3 - Average</option>
@@ -416,10 +416,10 @@ window.openFeedbackModal = function() {
 
                 <div style="margin-bottom:18px;">
                     <label style="display:block; font-size:0.75rem; font-weight:700; text-transform:uppercase; margin-bottom:4px; color:var(--text-secondary, #94a3b8);">Feedback Message</label>
-                    <textarea id="fbMessage" rows="4" placeholder="Write your thoughts, ideas, or feedback here..." required style="width:100%; padding:10px; border-radius:8px; border:1px solid rgba(99,102,241,0.25); background:var(--bg-body, #05081a); color:var(--text-primary, #fff); font-size:0.9rem; resize:vertical; box-sizing:border-box;"></textarea>
+                    <textarea id="fbMessage" rows="4" placeholder="Write your thoughts, ideas, or feedback here..." required style="width:100%; padding:10px; border-radius:8px; border:1px solid rgba(229,191,125,0.25); background:rgba(255,255,255,0.05); color:var(--text-primary, #fff); font-size:0.9rem; resize:vertical; box-sizing:border-box;"></textarea>
                 </div>
 
-                <button type="submit" id="fbSubmitBtn" style="width:100%; padding:12px; border-radius:10px; border:none; background:linear-gradient(135deg,#6366f1,#8b5cf6); color:#fff; font-weight:700; font-size:0.95rem; cursor:pointer; box-shadow:0 4px 18px rgba(99,102,241,0.4);">
+                <button type="submit" id="fbSubmitBtn" style="width:100%; padding:12px; border-radius:10px; border:none; background:linear-gradient(135deg,#e8c682 0%,#cfa354 50%,#ba8b39 100%); color:#fff; font-weight:700; font-size:0.95rem; cursor:pointer; box-shadow:0 4px 18px rgba(207,163,84,0.45); transition:transform 0.2s;" onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform=''">
                     Submit Feedback →
                 </button>
             </form>
@@ -482,7 +482,7 @@ function _injectFloatingFeedbackBtn() {
     var btn = document.createElement("button");
     btn.id = "rhFloatingFeedbackBtn";
     btn.onclick = window.openFeedbackModal;
-    btn.style.cssText = "position:fixed; bottom:24px; right:24px; z-index:9990; padding:10px 18px; border-radius:30px; border:1px solid rgba(99,102,241,0.4); background:linear-gradient(135deg, #6366f1, #4f46e5); color:#fff; font-weight:700; font-size:0.85rem; cursor:pointer; box-shadow:0 6px 20px rgba(99,102,241,0.4); display:flex; align-items:center; gap:8px; transition:transform 0.2s, box-shadow 0.2s;";
+    btn.style.cssText = "position:fixed; bottom:24px; right:24px; z-index:9990; padding:10px 18px; border-radius:30px; border:1px solid rgba(229,191,125,0.4); background:linear-gradient(135deg, #e8c682, #cfa354, #ba8b39); color:#fff; font-weight:700; font-size:0.85rem; cursor:pointer; box-shadow:0 6px 20px rgba(207,163,84,0.4); display:flex; align-items:center; gap:8px; transition:transform 0.2s, box-shadow 0.2s;";
     btn.innerHTML = "<span>💬</span><span>Feedback</span>";
     btn.onmouseover = function(){ this.style.transform="scale(1.05)"; };
     btn.onmouseout = function(){ this.style.transform="scale(1)"; };

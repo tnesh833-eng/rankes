@@ -99,7 +99,7 @@ async function fetchGithubReleases() {
 
     container.innerHTML = `
         <div style="display:flex; align-items:center; justify-content:center; gap:12px; padding:24px; color:var(--text-secondary);">
-            <div style="width:18px; height:18px; border:2px solid #818cf8; border-top-color:transparent; border-radius:50%; animation:spin 0.8s linear infinite;"></div>
+            <div style="width:18px; height:18px; border:2px solid var(--brand-primary, #cfa354); border-top-color:transparent; border-radius:50%; animation:spin 0.8s linear infinite;"></div>
             Fetching latest releases...
         </div>
         <style>@keyframes spin{to{transform:rotate(360deg)}}</style>
@@ -146,8 +146,8 @@ async function fetchGithubReleases() {
 
             const card = document.createElement('div');
             card.style.cssText = `
-                background: linear-gradient(135deg, rgba(99,102,241,0.06), rgba(139,92,246,0.04));
-                border: 1px solid rgba(99,102,241,0.18);
+                background: linear-gradient(135deg, rgba(207,163,84,0.08), rgba(232,198,130,0.04));
+                border: 1px solid rgba(207,163,84,0.22);
                 border-radius: 12px;
                 padding: 14px 16px;
                 display: flex;
@@ -155,14 +155,14 @@ async function fetchGithubReleases() {
                 gap: 8px;
                 transition: border-color 0.2s;
             `;
-            card.onmouseover = () => { card.style.borderColor = 'rgba(99,102,241,0.4)'; };
-            card.onmouseout = () => { card.style.borderColor = 'rgba(99,102,241,0.18)'; };
+            card.onmouseover = () => { card.style.borderColor = 'rgba(232,198,130,0.5)'; };
+            card.onmouseout = () => { card.style.borderColor = 'rgba(207,163,84,0.22)'; };
 
             card.innerHTML = `
                 <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
                     <div style="display:flex; align-items:center; gap:8px;">
-                        <span style="font-size:1rem; font-weight:800; color:#a5b4fc;">${label}</span>
-                        <code style="font-size:0.78rem; background:rgba(99,102,241,0.15); color:#818cf8; padding:2px 8px; border-radius:6px; font-weight:700;">${version}</code>
+                        <span style="font-size:1rem; font-weight:800; color:#e8c682;">${label}</span>
+                        <code style="font-size:0.78rem; background:rgba(207,163,84,0.15); color:#e8c682; padding:2px 8px; border-radius:6px; font-weight:700;">${version}</code>
                         <span style="font-size:0.72rem; font-weight:700; padding:2px 8px; border-radius:6px; background:${badgeColor}22; color:${badgeColor};">${badgeText}</span>
                     </div>
                     <span style="font-size:0.75rem; color:var(--text-muted, #64748b);">📅 ${date}</span>

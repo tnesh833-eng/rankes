@@ -25,9 +25,9 @@
         }
 
         .tab-block-btn.unblocked {
-            background: rgba(99, 102, 241, 0.15);
-            color: #818cf8;
-            border: 1px solid rgba(99, 102, 241, 0.3);
+            background: rgba(207, 163, 84, 0.15);
+            color: #e8c682;
+            border: 1px solid rgba(229, 191, 125, 0.3);
         }
 
         .tab-block-btn.blocked:hover {
@@ -35,7 +35,7 @@
         }
 
         .tab-block-btn.unblocked:hover {
-            background: rgba(99, 102, 241, 0.25);
+            background: rgba(207, 163, 84, 0.25);
         }
 
         .ca-btn {
@@ -79,7 +79,7 @@
         </a>
         <div class="header-actions">
             <a href="#adminPermissionSection" class="btn btn-sm"
-                style="background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;font-weight:700;display:flex;align-items:center;gap:6px;">
+                style="background:linear-gradient(135deg,#e8c682,#cfa354,#ba8b39);color:#fff;font-weight:700;display:flex;align-items:center;gap:6px;box-shadow:0 4px 16px rgba(207,163,84,0.35);">
                 <span>🔐</span> User Permissions Access
             </a>
             <a href="app.html" class="btn btn-sm btn-secondary">← Back to Main App</a>
@@ -91,11 +91,11 @@
     <div class="container">
         <!-- IN-PAGE ADMIN AUTHENTICATION CARD (Displayed if not yet authenticated) -->
         <div class="card" id="adminAuthScreen"
-            style="max-width:480px;margin:36px auto;border:1px solid rgba(99,102,241,0.4);box-shadow:0 24px 60px rgba(0,0,0,0.6);text-align:center;display:none;">
+            style="max-width:480px;margin:36px auto;border:1px solid rgba(229,191,125,0.35);box-shadow:0 24px 60px rgba(0,0,0,0.7), 0 0 35px rgba(207,163,84,0.15);text-align:center;display:none;background:var(--bg-surface);">
             <div
-                style="width:64px;height:64px;margin:0 auto 16px;background:linear-gradient(135deg,#6366f1,#818cf8);border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:32px;box-shadow:0 8px 24px rgba(99,102,241,0.4);">
+                style="width:64px;height:64px;margin:0 auto 16px;background:linear-gradient(135deg,#e8c682,#cfa354,#ba8b39);border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:32px;box-shadow:0 8px 24px rgba(207,163,84,0.4);">
                 🛡️</div>
-            <h2 style="font-size:1.4rem;font-weight:800;color:var(--text-primary);margin:0 0 6px;">Administrator
+            <h2 style="font-size:1.4rem;font-weight:800;background:linear-gradient(135deg,#ffffff 20%,#f7e6c5 60%,#cfa354 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin:0 0 6px;">Administrator
                 Authentication</h2>
             <p style="font-size:0.85rem;color:var(--text-secondary);margin:0 0 20px;">Restricted console access for
                 Super Admin (<strong style="color:var(--brand-primary);">tnesh833@gmail.com</strong>)</p>
@@ -108,9 +108,9 @@
             </div>
 
             <div
-                style="display:flex;gap:6px;background:rgba(0,0,0,0.25);padding:4px;border-radius:10px;margin-bottom:18px;">
+                style="display:flex;gap:6px;background:rgba(0,0,0,0.3);padding:4px;border-radius:10px;margin-bottom:18px;">
                 <button id="adminTabBtnPwd" onclick="setAdminLoginMethod('password')"
-                    style="flex:1;padding:8px;border:none;border-radius:8px;font-size:0.8rem;font-weight:700;cursor:pointer;background:linear-gradient(135deg,#6366f1,#818cf8);color:#fff;">🔑
+                    style="flex:1;padding:8px;border:none;border-radius:8px;font-size:0.8rem;font-weight:700;cursor:pointer;background:linear-gradient(135deg,#e8c682,#cfa354,#ba8b39);color:#fff;">🔑
                     Master Password</button>
                 <button id="adminTabBtnOtp" onclick="setAdminLoginMethod('otp')"
                     style="flex:1;padding:8px;border:none;border-radius:8px;font-size:0.8rem;font-weight:700;cursor:pointer;background:transparent;color:var(--text-secondary);">📧
@@ -182,9 +182,9 @@
             </div>
             <!-- TABS CONDITION BOX -->
             <div
-                style="background:var(--bg-surface);border:1px solid rgba(99,102,241,0.4);border-radius:var(--radius-md);margin-bottom:24px;overflow:hidden;">
+                style="background:var(--bg-surface);border:1px solid rgba(229,191,125,0.35);border-radius:var(--radius-md);margin-bottom:24px;overflow:hidden;">
                 <div
-                    style="background:linear-gradient(135deg,rgba(99,102,241,0.2),rgba(139,92,246,0.1));padding:20px 24px;border-bottom:1px solid rgba(99,102,241,0.25);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+                    style="background:linear-gradient(135deg,rgba(207,163,84,0.18),rgba(232,198,130,0.08));padding:20px 24px;border-bottom:1px solid rgba(229,191,125,0.2);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
                     <div>
                         <h3 style="font-size:1.1rem;font-weight:800;color:var(--brand-primary);margin:0 0 4px;">🎛️ App
                             Layout &amp; Tabs Condition Box</h3>
@@ -192,12 +192,12 @@
                             for users. Admin always sees all tabs.</p>
                     </div>
                     <button id="saveTabsBtn" onclick="saveTabConditions()"
-                        style="background:linear-gradient(135deg,#6366f1,#818cf8);color:#fff;border:none;border-radius:10px;padding:10px 22px;font-weight:700;font-size:0.88rem;cursor:pointer;box-shadow:0 4px 20px rgba(99,102,241,0.4);transition:all 0.2s;"
+                        style="background:linear-gradient(135deg,#e8c682,#cfa354,#ba8b39);color:#fff;border:none;border-radius:10px;padding:10px 22px;font-weight:700;font-size:0.88rem;cursor:pointer;box-shadow:0 4px 20px rgba(207,163,84,0.4);transition:all 0.2s;"
                         onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">💾
                         Save Changes</button>
                 </div>
                 <div
-                    style="display:grid;grid-template-columns:1fr 90px 150px;gap:0;padding:10px 24px;background:rgba(99,102,241,0.06);border-bottom:1px solid rgba(99,102,241,0.15);">
+                    style="display:grid;grid-template-columns:1fr 90px 150px;gap:0;padding:10px 24px;background:rgba(207,163,84,0.06);border-bottom:1px solid rgba(229,191,125,0.15);">
                     <div
                         style="font-size:0.72rem;text-transform:uppercase;font-weight:700;color:var(--brand-primary);letter-spacing:0.08em;">
                         Tab Name</div>
@@ -210,13 +210,13 @@
                 </div>
                 <div id="tabConditionRows" style="padding:8px 0;"></div>
                 <div id="tabSaveStatus"
-                    style="display:none;padding:12px 24px;font-size:0.85rem;font-weight:600;border-top:1px solid rgba(99,102,241,0.2);">
+                    style="display:none;padding:12px 24px;font-size:0.85rem;font-weight:600;border-top:1px solid rgba(229,191,125,0.2);">
                 </div>
             </div>
 
             <!-- USER PERMISSION ACCESS MANAGEMENT (INFO-GLOBAL TAB) -->
             <div id="adminPermissionSection"
-                style="background:var(--bg-surface);border:1px solid rgba(99,102,241,0.4);border-radius:var(--radius-md);margin-bottom:24px;overflow:hidden;box-shadow:0 12px 32px rgba(0,0,0,0.25);">
+                style="background:var(--bg-surface);border:1px solid rgba(229,191,125,0.35);border-radius:var(--radius-md);margin-bottom:24px;overflow:hidden;box-shadow:0 12px 32px rgba(0,0,0,0.4);">
                 <div
                     style="background:linear-gradient(135deg,rgba(99,102,241,0.25),rgba(139,92,246,0.15));padding:20px 24px;border-bottom:1px solid rgba(99,102,241,0.25);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
                     <div>
@@ -437,14 +437,14 @@
             if (succ) succ.style.display = "none";
 
             if (method === "password") {
-                if (tabPwd) { tabPwd.style.background = "linear-gradient(135deg,#6366f1,#818cf8)"; tabPwd.style.color = "#fff"; }
+                if (tabPwd) { tabPwd.style.background = "linear-gradient(135deg,#e8c682,#cfa354,#ba8b39)"; tabPwd.style.color = "#fff"; }
                 if (tabOtp) { tabOtp.style.background = "transparent"; tabOtp.style.color = "var(--text-secondary)"; }
                 if (formPwd) formPwd.style.display = "flex";
                 if (formOtp) formOtp.style.display = "none";
                 const inp = document.getElementById("adminMasterPassword");
                 if (inp) inp.focus();
             } else {
-                if (tabOtp) { tabOtp.style.background = "linear-gradient(135deg,#6366f1,#818cf8)"; tabOtp.style.color = "#fff"; }
+                if (tabOtp) { tabOtp.style.background = "linear-gradient(135deg,#e8c682,#cfa354,#ba8b39)"; tabOtp.style.color = "#fff"; }
                 if (tabPwd) { tabPwd.style.background = "transparent"; tabPwd.style.color = "var(--text-secondary)"; }
                 if (formPwd) formPwd.style.display = "none";
                 if (formOtp) formOtp.style.display = "flex";
@@ -601,7 +601,7 @@
                 <div style="display:flex;justify-content:center;">
                     <label style="position:relative;display:inline-block;width:42px;height:22px;cursor:pointer;">
                         <input type="checkbox" ${vis ? "checked" : ""} style="opacity:0;width:0;height:0;" onchange="onTabToggle('${tab.flag}',this.checked)">
-                        <span style="position:absolute;inset:0;border-radius:22px;background:${vis ? "#6366f1" : "rgba(244,63,94,0.3)"};transition:background 0.25s;box-shadow:${vis ? "0 0 8px rgba(99,102,241,0.5)" : "none"};"></span>
+                        <span style="position:absolute;inset:0;border-radius:22px;background:${vis ? "#cfa354" : "rgba(244,63,94,0.3)"};transition:background 0.25s;box-shadow:${vis ? "0 0 8px rgba(207,163,84,0.5)" : "none"};"></span>
                         <span style="position:absolute;top:3px;left:${vis ? "22px" : "3px"};width:16px;height:16px;border-radius:50%;background:#fff;transition:left 0.25s;box-shadow:0 1px 4px rgba(0,0,0,0.3);"></span>
                     </label>
                 </div>
@@ -824,7 +824,7 @@
 
                 const isPermitted = c.email.toLowerCase() === "tnesh833@gmail.com" || allowedUsers.includes(c.email.toLowerCase());
                 if (c.email.toLowerCase() === "tnesh833@gmail.com") {
-                    acts += `<span class="chip" style="color:#6366f1;border-color:rgba(99,102,241,0.3);background:rgba(99,102,241,0.1);">👑 Super Admin</span>`;
+                    acts += `<span class="chip" style="color:#e8c682;border-color:rgba(229,191,125,0.4);background:rgba(207,163,84,0.15);">👑 Super Admin</span>`;
                 } else {
                     acts += `<button class="ca-btn ${isPermitted ? 'ca-block' : 'ca-approve'}" onclick="quickTogglePerm('${c.email}')" title="Toggle Info-Global access">
                     ${isPermitted ? '🔒 Lock Info-Global' : '🔑 Grant Info-Global'}
@@ -1015,7 +1015,7 @@
             if (mainCard) mainCard.style.display = "block";
 
             const toast = document.createElement("div");
-            toast.style.cssText = "position:fixed;top:20px;right:20px;background:linear-gradient(135deg,#6366f1,#818cf8);color:#fff;padding:14px 22px;border-radius:12px;font-weight:700;z-index:99999;box-shadow:0 8px 30px rgba(99,102,241,0.5);display:flex;align-items:center;gap:10px;";
+            toast.style.cssText = "position:fixed;top:20px;right:20px;background:linear-gradient(135deg,#e8c682,#cfa354,#ba8b39);color:#fff;padding:14px 22px;border-radius:12px;font-weight:700;z-index:99999;box-shadow:0 8px 30px rgba(207,163,84,0.5);display:flex;align-items:center;gap:10px;";
             toast.innerHTML = "<span>🛡️</span><span>Welcome Admin! Console unlocked successfully.</span>";
             document.body.appendChild(toast);
             setTimeout(() => toast.remove(), 4000);
